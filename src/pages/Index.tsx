@@ -158,6 +158,9 @@ const Index = () => {
   const [homeScene, setHomeScene] = useState<HomeScene>('bike');
   const [bootstrapAttempt, setBootstrapAttempt] = useState(0);
   const lastSyncedConfigRef = useRef<string | null>(null);
+  // ISO date (YYYY-MM-DD) when lastSyncedConfigRef was last updated.
+  // Used to detect stale local completion state across midnight.
+  const lastSyncedDateRef = useRef<string | null>(null);
   const configSyncInFlightRef = useRef<string | null>(null);
   const pendingCloudConfigSyncRef = useRef<{
     signature: string;
@@ -282,6 +285,7 @@ const Index = () => {
               homeScene: cloudState.homeScene,
               setupComplete: cloudState.children.length > 0,
             });
+            lastSyncedDateRef.current = getLocalProgressDate(new Date());
             configSyncInFlightRef.current = null;
             shouldSyncFirstConfigRef.current = false;
             setIsReady(true);
@@ -387,6 +391,7 @@ const Index = () => {
             homeScene: cloudState.homeScene,
             setupComplete: true,
           });
+          lastSyncedDateRef.current = getLocalProgressDate(new Date());
           configSyncInFlightRef.current = null;
           shouldSyncFirstConfigRef.current = false;
         } else if (authStatus === 'signed_in') {
@@ -519,6 +524,7 @@ const Index = () => {
         }
 
         lastSyncedConfigRef.current = nextSignature;
+        lastSyncedDateRef.current = getLocalProgressDate(new Date());
         setCloudConfigSyncStatus('saved');
         setCloudConfigSyncError(null);
         return true;
@@ -548,6 +554,7 @@ const Index = () => {
     if (lastSyncedConfigRef.current === null) {
       if (!shouldSyncFirstConfigRef.current) {
         lastSyncedConfigRef.current = householdConfigSignature;
+        lastSyncedDateRef.current = getLocalProgressDate(new Date());
         setCloudConfigSyncStatus('saved');
         return;
       }
@@ -658,9 +665,13 @@ const Index = () => {
         // Merge cloud data with local state, preferring the more-complete local
         // values for fields that are written frequently from the client:
         //   • task completions — toggled locally, cloud may lag by one sync cycle
+        //     BUT only if local state is from today — stale overnight state must not
+        //     override cloud's fresh new-day reset.
         //   • affirmations — local is authoritative within the session
         //   • streak / streakDate — incremented locally; cloud value may be one
         //     sync behind. Keep the higher streak to avoid rollback on refresh.
+        const todayForMerge = getLocalProgressDate(new Date());
+        const localCompletionIsCurrent = lastSyncedDateRef.current === todayForMerge;
         setChildren((prev) =>
           cloudState.children.map((cloudChild) => {
             const local = prev.find((c) => c.id === cloudChild.id);
@@ -670,6 +681,7 @@ const Index = () => {
               localTasks: typeof local.morning,
             ) =>
               cloudTasks.map((ct) => {
+                if (!localCompletionIsCurrent) return ct;
                 const lt = localTasks.find((t) => t.id === ct.id);
                 return lt ? { ...ct, completed: lt.completed } : ct;
               });
@@ -702,6 +714,7 @@ const Index = () => {
         setCloudConfigSyncStatus(nextSetupComplete ? 'saved' : 'idle');
         setCloudConfigSyncError(null);
         lastSyncedConfigRef.current = nextSignature;
+        lastSyncedDateRef.current = getLocalProgressDate(new Date());
       } catch (error) {
         // Keep running with existing local state; cloud refresh can fail temporarily.
         console.warn('Could not refresh cloud household state.', options?.reason ?? 'unknown', error);
@@ -1154,6 +1167,7 @@ const Index = () => {
                 homeScene: cloudState.homeScene,
                 setupComplete: cloudState.children.length > 0,
               });
+              lastSyncedDateRef.current = getLocalProgressDate(new Date());
               configSyncInFlightRef.current = null;
               shouldSyncFirstConfigRef.current = false;
             })
