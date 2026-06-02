@@ -1,342 +1,536 @@
 import { useEffect, useRef, useState } from 'react';
-import { Sun, Moon, Star, Sparkles, Heart, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, Star } from 'lucide-react';
 
+/* ─── Brand tokens ───────────────────────────────────────────────────── */
 const T = {
   fonts: `'Fredoka', system-ui, sans-serif`,
   ink: '#3d2c1f',
-  inkMute: '#8a7866',
+  inkMute: '#7a6555',
   cream: '#fff9f0',
   creamDeep: '#f5ede2',
   white: '#ffffff',
   border: 'rgba(180,120,80,0.12)',
   orange: '#f97316',
-  orangeHover: '#ea6c0e',
+  orangeDark: '#ea6c0e',
   orangeLight: '#fff1e8',
-  shadow: '0 4px 24px rgba(180,120,80,0.13)',
-  shadowHover: '0 8px 32px rgba(249,115,22,0.22)',
+  indigo: '#4338ca',
+  indigoLight: '#eef2ff',
+  green: '#047857',
+  greenLight: '#ecfdf5',
+  pink: '#9d174d',
+  pinkLight: '#fdf2f8',
 };
 
-const FEATURES = [
-  {
-    icon: Sun,
-    title: 'Morning magic',
-    desc: 'Custom routines that guide each child through their morning — get dressed, brush teeth, pack the bag — without the nagging.',
-    bg: 'linear-gradient(145deg,#f97316,#fdba74)',
-    shadow: 'rgba(249,115,22,0.30)',
-  },
-  {
-    icon: Moon,
-    title: 'Calm evenings',
-    desc: 'Wind-down checklists that help kids settle into bedtime — bath, reading, lights out — while parents stay sane.',
-    bg: 'linear-gradient(145deg,#4338ca,#818cf8)',
-    shadow: 'rgba(67,56,202,0.28)',
-  },
-  {
-    icon: Star,
-    title: 'Kids take charge',
-    desc: 'A colourful, screen-time-friendly interface built for little hands. Tasks are tapped, not told. Streaks and stars keep motivation alive.',
-    bg: 'linear-gradient(145deg,#047857,#6ee7b7)',
-    shadow: 'rgba(4,120,87,0.28)',
-  },
-  {
-    icon: Heart,
-    title: 'One family, every device',
-    desc: 'Parent account syncs routines, children, and progress across all devices. Set up once on a tablet; it just works on every phone.',
-    bg: 'linear-gradient(145deg,#9d174d,#fda4af)',
-    shadow: 'rgba(157,23,77,0.28)',
-  },
-];
+/* ─── Inline SVG helpers ─────────────────────────────────────────────── */
+const StarSVG = ({ size = 18, color = '#f97316', style }: { size?: number; color?: string; style?: React.CSSProperties }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" style={style} aria-hidden="true">
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill={color} />
+  </svg>
+);
 
-const STEPS = [
-  { n: '1', title: 'Create a free account', body: 'Enter your email and we send a magic sign-in link. No password to forget.' },
-  { n: '2', title: 'Add your children', body: 'Give each child a name, pick an avatar, and choose their age. Takes about 60 seconds.' },
-  { n: '3', title: 'Build the first routine', body: 'Pick tasks from the library or write your own. Drag to reorder. Done.' },
-];
+const BlobBg = ({ color, style }: { color: string; style?: React.CSSProperties }) => (
+  <svg viewBox="0 0 500 450" style={{ position: 'absolute', pointerEvents: 'none', ...style }} aria-hidden="true">
+    <path d="M420,60 C480,120 500,220 470,310 C440,400 360,450 260,440 C160,430 80,370 50,280 C20,190 40,90 110,45 C180,0 360,0 420,60 Z" fill={color} />
+  </svg>
+);
 
-interface Props {
-  onGetStarted: () => void;
-}
+/* ─── Phone mockup frames ────────────────────────────────────────────── */
+const Phone = ({ children, tilt = 0 }: { children: React.ReactNode; tilt?: number }) => (
+  <div style={{
+    width: 230, flexShrink: 0,
+    borderRadius: 40,
+    background: '#1f1208',
+    padding: '8px 7px 12px',
+    boxShadow: '0 28px 64px rgba(0,0,0,0.28)',
+    transform: tilt ? `rotate(${tilt}deg)` : undefined,
+    transition: 'transform 300ms ease',
+  }}>
+    {/* Pill notch */}
+    <div style={{ height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 64, height: 10, background: '#0d0803', borderRadius: 99 }} />
+    </div>
+    <div style={{ borderRadius: 32, overflow: 'hidden' }}>
+      {children}
+    </div>
+  </div>
+);
+
+/* ── Screen: Morning routine ── */
+const RoutineScreen = () => (
+  <div style={{ background: 'linear-gradient(160deg,#fff9f0,#fff1e8)', minHeight: 420, padding: '16px 14px' }}>
+    <div style={{ fontFamily: T.fonts, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: T.inkMute, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Good morning</div>
+        <div style={{ fontSize: 17, fontWeight: 700, color: T.ink }}>Lily's routine</div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: T.orangeLight, borderRadius: 99, padding: '4px 9px' }}>
+        <StarSVG size={12} color={T.orange} />
+        <span style={{ fontSize: 12, fontWeight: 700, color: T.orange }}>🔥 5</span>
+      </div>
+    </div>
+    {[
+      { done: true,  icon: '☀️', label: 'Wake up & stretch' },
+      { done: true,  icon: '🚿', label: 'Shower' },
+      { done: false, icon: '👕', label: 'Get dressed' },
+      { done: false, icon: '🪥', label: 'Brush teeth' },
+      { done: false, icon: '🎒', label: 'Pack schoolbag' },
+      { done: false, icon: '🍳', label: 'Eat breakfast' },
+    ].map(({ done, icon, label }) => (
+      <div key={label} style={{
+        display: 'flex', alignItems: 'center', gap: 10,
+        background: done ? 'rgba(249,115,22,0.08)' : T.white,
+        borderRadius: 14, padding: '9px 11px', marginBottom: 7,
+        border: done ? `1.5px solid rgba(249,115,22,0.18)` : `1.5px solid rgba(180,120,80,0.10)`,
+        opacity: done ? 0.7 : 1,
+      }}>
+        <div style={{
+          width: 22, height: 22, borderRadius: 8, flexShrink: 0,
+          background: done ? T.orange : 'rgba(180,120,80,0.08)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          {done ? <span style={{ fontSize: 11 }}>✓</span> : null}
+        </div>
+        <span style={{ fontSize: 11 }}>{icon}</span>
+        <span style={{ fontSize: 12, fontWeight: done ? 600 : 500, color: done ? T.inkMute : T.ink, textDecoration: done ? 'line-through' : 'none' }}>{label}</span>
+      </div>
+    ))}
+    <div style={{ marginTop: 10, background: T.orangeLight, borderRadius: 14, padding: '8px 12px', textAlign: 'center' }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: T.orange }}>4 tasks left · You've got this! ⭐</div>
+    </div>
+  </div>
+);
+
+/* ── Screen: Mood tracker ── */
+const MoodScreen = () => {
+  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const moods = ['😄', '🙂', '😐', '😊', '😢', null, null];
+  const colors = ['#22c55e', '#84cc16', '#eab308', '#22c55e', '#3b82f6', null, null];
+  return (
+    <div style={{ background: 'linear-gradient(160deg,#eef2ff,#f0f4ff)', minHeight: 420, padding: '16px 14px', fontFamily: T.fonts }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: T.indigo, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>This week</div>
+      <div style={{ fontSize: 17, fontWeight: 700, color: '#1e1b4b', marginBottom: 16 }}>Lily's moods</div>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 20 }}>
+        {days.map((d, i) => (
+          <div key={i} style={{ flex: 1, textAlign: 'center' }}>
+            <div style={{ fontSize: 9, fontWeight: 600, color: '#6366f1', marginBottom: 4 }}>{d}</div>
+            <div style={{
+              width: '100%', aspectRatio: '1', borderRadius: 12,
+              background: colors[i] ? `${colors[i]}20` : 'rgba(99,102,241,0.08)',
+              border: `1.5px solid ${colors[i] ? `${colors[i]}40` : 'rgba(99,102,241,0.12)'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 14,
+            }}>{moods[i] ?? ''}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ background: T.white, borderRadius: 18, padding: '12px', marginBottom: 12 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: T.inkMute, marginBottom: 8 }}>How are you feeling today?</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          {['😄','🙂','😐','😕','😢','😡'].map((e, i) => (
+            <div key={i} style={{
+              width: 32, height: 32, borderRadius: 12,
+              background: i === 0 ? '#dcfce7' : 'rgba(180,120,80,0.06)',
+              border: i === 0 ? '2px solid #22c55e' : '1.5px solid rgba(180,120,80,0.10)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
+            }}>{e}</div>
+          ))}
+        </div>
+      </div>
+      <div style={{ background: '#eef2ff', borderRadius: 14, padding: '10px 12px' }}>
+        <div style={{ fontSize: 11, color: '#4f46e5', fontWeight: 600 }}>✦ Mostly positive this week — great pattern!</div>
+      </div>
+    </div>
+  );
+};
+
+/* ── Screen: Affirmation card ── */
+const AffirmationScreen = () => (
+  <div style={{ background: 'linear-gradient(160deg,#ecfdf5,#d1fae5)', minHeight: 420, padding: '20px 16px', fontFamily: T.fonts, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+    <div style={{ fontSize: 40, marginBottom: 12 }}>🐸</div>
+    <div style={{ fontSize: 11, fontWeight: 700, color: T.green, letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: 16 }}>Today's affirmation</div>
+    <div style={{
+      background: T.white, borderRadius: 22, padding: '22px 18px',
+      boxShadow: '0 4px 20px rgba(4,120,87,0.12)',
+      border: '1.5px solid rgba(4,120,87,0.10)', marginBottom: 16,
+    }}>
+      <div style={{ fontSize: 22, fontWeight: 700, color: T.ink, lineHeight: 1.3 }}>
+        "I can do hard&nbsp;things."
+      </div>
+    </div>
+    <div style={{ display: 'flex', gap: 6 }}>
+      {[0,1,2].map(i => (
+        <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: i === 1 ? T.green : 'rgba(4,120,87,0.20)' }} />
+      ))}
+    </div>
+    <div style={{ marginTop: 24, fontSize: 12, fontWeight: 600, color: T.green, background: 'rgba(4,120,87,0.08)', borderRadius: 12, padding: '7px 14px' }}>
+      ⭐ Routine complete!
+    </div>
+  </div>
+);
+
+/* ── Screen: Achievement / streak ── */
+const AchievementScreen = () => (
+  <div style={{ background: 'linear-gradient(160deg,#fdf2f8,#fce7f3)', minHeight: 420, padding: '16px 14px', fontFamily: T.fonts }}>
+    <div style={{ fontSize: 11, fontWeight: 700, color: T.pink, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Achievements</div>
+    <div style={{ fontSize: 17, fontWeight: 700, color: '#4a0026', marginBottom: 14 }}>Lily's stars</div>
+    <div style={{ background: T.white, borderRadius: 18, padding: '14px 12px', marginBottom: 10, textAlign: 'center' }}>
+      <div style={{ fontSize: 32, fontWeight: 700, color: T.orange }}>🔥 12</div>
+      <div style={{ fontSize: 11, color: T.inkMute, marginTop: 2 }}>day streak — keep going!</div>
+    </div>
+    {[
+      { icon: '⭐', name: 'Morning Star',  desc: '7 mornings complete', color: '#fef3c7', border: '#fbbf24' },
+      { icon: '🌙', name: 'Night Owl',     desc: '5 evening routines', color: '#ede9fe', border: '#8b5cf6' },
+      { icon: '☁️', name: 'Calm Cloud',    desc: '5 calm moods in a row', color: '#dbeafe', border: '#3b82f6' },
+      { icon: '🏆', name: 'Gold Finisher', desc: '30-day streak!',      color: '#fef3c7', border: '#f59e0b', locked: true },
+    ].map(({ icon, name, desc, color, border, locked }) => (
+      <div key={name} style={{
+        display: 'flex', alignItems: 'center', gap: 10,
+        background: locked ? 'rgba(180,120,80,0.04)' : color,
+        borderRadius: 14, padding: '8px 10px', marginBottom: 6,
+        border: `1.5px solid ${locked ? 'rgba(180,120,80,0.10)' : border + '50'}`,
+        opacity: locked ? 0.5 : 1,
+      }}>
+        <div style={{ fontSize: 20 }}>{icon}</div>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: locked ? T.inkMute : T.ink }}>{name}</div>
+          <div style={{ fontSize: 10, color: T.inkMute }}>{locked ? '🔒 ' : ''}{desc}</div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+/* ─── Section wrapper ────────────────────────────────────────────────── */
+const Section = ({ bg, children, style }: { bg?: string; children: React.ReactNode; style?: React.CSSProperties }) => (
+  <div style={{ background: bg ?? T.cream, width: '100%', padding: '80px 24px', position: 'relative', overflow: 'hidden', ...style }}>
+    <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+      {children}
+    </div>
+  </div>
+);
+
+const FeatureRow = ({
+  phone, text, reverse = false,
+}: { phone: React.ReactNode; text: React.ReactNode; reverse?: boolean }) => {
+  const [isWide, setIsWide] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 760 : true);
+  useEffect(() => {
+    const fn = () => setIsWide(window.innerWidth >= 760);
+    window.addEventListener('resize', fn);
+    return () => window.removeEventListener('resize', fn);
+  }, []);
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: isWide ? (reverse ? 'row-reverse' : 'row') : 'column',
+      alignItems: 'center', gap: isWide ? 64 : 40,
+    }}>
+      <div style={{ flexShrink: 0 }}>{phone}</div>
+      <div style={{ flex: 1 }}>{text}</div>
+    </div>
+  );
+};
+
+/* ─── Main component ─────────────────────────────────────────────────── */
+interface Props { onGetStarted: () => void; }
 
 export const LandingPage = ({ onGetStarted }: Props) => {
   const [scrolled, setScrolled] = useState(false);
-  const heroRef = useRef<HTMLDivElement>(null);
+  const [isWide, setIsWide] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 760 : true);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
+    const onResize = () => setIsWide(window.innerWidth >= 760);
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onResize);
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onResize); };
   }, []);
 
+  const btnPrimary = (large = false): React.CSSProperties => ({
+    background: T.orange, color: T.white, border: 'none',
+    borderRadius: 99, padding: large ? '18px 40px' : '13px 28px',
+    fontSize: large ? 18 : 15, fontWeight: 700, cursor: 'pointer',
+    fontFamily: T.fonts, letterSpacing: '0.01em',
+    boxShadow: `0 ${large ? 6 : 4}px 0 rgba(0,0,0,0.10), 0 ${large ? 16 : 10}px ${large ? 36 : 24}px rgba(249,115,22,0.28)`,
+    display: 'inline-flex', alignItems: 'center', gap: 8,
+    transition: 'all 180ms ease',
+  });
+
   return (
-    <div data-testid="landing-page" style={{ fontFamily: T.fonts, background: T.cream, color: T.ink, minHeight: '100svh', overflowX: 'hidden' }}>
+    <div data-testid="landing-page" style={{ fontFamily: T.fonts, background: T.cream, color: T.ink, overflowX: 'hidden' }}>
 
       {/* ── Floating nav ── */}
-      <nav
-        style={{
-          position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)',
-          width: 'calc(100% - 32px)', maxWidth: 900, zIndex: 50,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '10px 18px',
-          background: scrolled ? 'rgba(255,249,240,0.92)' : 'transparent',
-          backdropFilter: scrolled ? 'blur(12px)' : 'none',
-          borderRadius: 99, border: scrolled ? `1.5px solid ${T.border}` : '1.5px solid transparent',
-          boxShadow: scrolled ? T.shadow : 'none',
-          transition: 'all 220ms ease',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 10,
-            background: 'linear-gradient(135deg,#f97316,#fdba74)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(249,115,22,0.30)',
-          }}>
-            <Star size={16} color="#fff" fill="#fff" />
+      <nav style={{
+        position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)',
+        width: 'calc(100% - 32px)', maxWidth: 960, zIndex: 50,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '10px 18px',
+        background: scrolled ? 'rgba(255,249,240,0.94)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(14px)' : 'none',
+        borderRadius: 99, border: scrolled ? `1.5px solid ${T.border}` : '1.5px solid transparent',
+        boxShadow: scrolled ? '0 4px 20px rgba(180,120,80,0.10)' : 'none',
+        transition: 'all 220ms ease',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg,#f97316,#fdba74)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(249,115,22,0.30)' }}>
+            <Star size={15} color="#fff" fill="#fff" />
           </div>
-          <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>Routine Stars</span>
+          <span style={{ fontSize: 17, fontWeight: 700 }}>Routine Stars</span>
         </div>
-        <button
-          onClick={onGetStarted}
-          style={{
-            background: T.orange, color: '#fff', border: 'none',
-            borderRadius: 99, padding: '8px 20px',
-            fontSize: 14, fontWeight: 700, cursor: 'pointer',
-            fontFamily: T.fonts, letterSpacing: '0.01em',
-            boxShadow: '0 4px 0 rgba(0,0,0,0.10)',
-            transition: 'all 150ms ease',
-          }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = T.orangeHover; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = T.orange; (e.currentTarget as HTMLButtonElement).style.transform = ''; }}
-        >
-          Get started
+        <button style={btnPrimary()} onClick={onGetStarted}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = ''; }}>
+          Get started free
         </button>
       </nav>
 
-      {/* ── Hero ── */}
-      <div
-        ref={heroRef}
-        style={{
-          minHeight: '100svh', display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          padding: '100px 24px 80px', textAlign: 'center', position: 'relative',
-        }}
-      >
-        {/* Blobs */}
-        <div style={{ position: 'absolute', top: '8%', left: '-5%', width: 500, height: 400, borderRadius: '50%', background: 'rgba(249,115,22,0.07)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '10%', right: '-8%', width: 420, height: 420, borderRadius: '50%', background: 'rgba(67,56,202,0.07)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', top: '40%', left: '60%', width: 300, height: 300, borderRadius: '50%', background: 'rgba(4,120,87,0.05)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+      {/* ══════════════════════════════════════════════════════════ HERO */}
+      <div style={{ minHeight: '100svh', display: 'flex', alignItems: 'center', padding: '100px 24px 60px', position: 'relative', overflow: 'hidden' }}>
+        {/* Blob */}
+        <BlobBg color="rgba(249,115,22,0.08)" style={{ width: 560, top: -60, right: -100, zIndex: 0 }} />
+        <BlobBg color="rgba(67,56,202,0.06)" style={{ width: 360, bottom: -60, left: -80, zIndex: 0 }} />
+        {/* Scattered stars */}
+        <StarSVG size={22} color="#f97316" style={{ position: 'absolute', top: '18%', right: '42%', opacity: 0.55 }} />
+        <StarSVG size={14} color="#818cf8" style={{ position: 'absolute', top: '30%', right: '36%', opacity: 0.45 }} />
+        <StarSVG size={18} color="#f97316" style={{ position: 'absolute', bottom: '22%', left: '30%', opacity: 0.40 }} />
 
-        {/* Badge */}
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 6,
-          background: T.orangeLight, borderRadius: 99, padding: '6px 16px',
-          fontSize: 13, fontWeight: 700, color: T.orange,
-          letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 28,
-          border: `1.5px solid rgba(249,115,22,0.15)`,
-        }}>
-          <Sparkles size={13} />
-          Free for families
-        </div>
-
-        {/* Headline */}
-        <h1 style={{
-          fontSize: 'clamp(40px, 7vw, 80px)', fontWeight: 700, lineHeight: 1.08,
-          margin: '0 0 22px', maxWidth: 760,
-          background: 'linear-gradient(135deg, #3d2c1f 30%, #f97316)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-        }}>
-          Mornings that&nbsp;run themselves
-        </h1>
-
-        <p style={{
-          fontSize: 'clamp(16px, 2vw, 20px)', color: T.inkMute, lineHeight: 1.65,
-          maxWidth: 560, margin: '0 0 40px',
-        }}>
-          Routine Stars gives every child a colourful, tap-through checklist for mornings and evenings — so you can hand over the reins and drink your coffee while it's still hot.
-        </p>
-
-        {/* CTA group */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-          <button
-            onClick={onGetStarted}
-            style={{
-              background: T.orange, color: '#fff', border: 'none',
-              borderRadius: 99, padding: '16px 36px',
-              fontSize: 17, fontWeight: 700, cursor: 'pointer',
-              fontFamily: T.fonts, letterSpacing: '0.01em',
-              boxShadow: `0 6px 0 rgba(0,0,0,0.10), 0 12px 32px rgba(249,115,22,0.28)`,
-              display: 'flex', alignItems: 'center', gap: 8,
-              transition: 'all 180ms ease',
-            }}
-            onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-2px)'; b.style.boxShadow = `0 8px 0 rgba(0,0,0,0.10), 0 16px 40px rgba(249,115,22,0.36)`; }}
-            onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = ''; b.style.boxShadow = `0 6px 0 rgba(0,0,0,0.10), 0 12px 32px rgba(249,115,22,0.28)`; }}
-          >
-            Create your first routine
-            <ChevronRight size={18} />
-          </button>
-          <span style={{ fontSize: 13, color: T.inkMute }}>No credit card · Free forever</span>
-        </div>
-
-        {/* Social proof */}
-        <div style={{ marginTop: 52, display: 'flex', gap: 28, flexWrap: 'wrap', justifyContent: 'center' }}>
-          {[
-            { icon: CheckCircle2, text: 'Works on any device' },
-            { icon: CheckCircle2, text: 'Cloud sync included' },
-            { icon: CheckCircle2, text: 'Kids use it independently' },
-          ].map(({ icon: Icon, text }) => (
-            <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, color: T.inkMute }}>
-              <Icon size={15} color={T.orange} />
-              {text}
+        <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', flexDirection: isWide ? 'row' : 'column', alignItems: 'center', gap: isWide ? 60 : 40, position: 'relative', zIndex: 1, width: '100%' }}>
+          {/* Left: copy */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: T.orangeLight, border: `1.5px solid rgba(249,115,22,0.18)`, borderRadius: 99, padding: '5px 14px', fontSize: 12, fontWeight: 700, color: T.orange, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 22 }}>
+              <StarSVG size={11} color={T.orange} />
+              Free for every family
             </div>
-          ))}
+
+            <h1 style={{ fontSize: 'clamp(38px, 6.5vw, 68px)', fontWeight: 700, lineHeight: 1.05, margin: '0 0 8px', color: T.ink }}>
+              Stop being<br />
+              <span style={{ color: T.orange }}>the alarm clock.</span>
+            </h1>
+            <p style={{ fontSize: 'clamp(16px, 2vw, 19px)', color: T.inkMute, lineHeight: 1.65, maxWidth: 480, margin: '16px 0 36px' }}>
+              Routine Stars gives every child their own colourful morning and evening checklist — so they know exactly what to do next. Without you having to say it.
+            </p>
+
+            <button style={btnPrimary(true)} onClick={onGetStarted}
+              onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-2px)'; b.style.boxShadow = '0 8px 0 rgba(0,0,0,0.10), 0 22px 44px rgba(249,115,22,0.36)'; }}
+              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = ''; b.style.boxShadow = '0 6px 0 rgba(0,0,0,0.10), 0 16px 36px rgba(249,115,22,0.28)'; }}>
+              Start our first routine free
+              <ChevronRight size={20} />
+            </button>
+            <div style={{ marginTop: 14, fontSize: 13, color: T.inkMute }}>No app store · Works in any browser · Free forever</div>
+          </div>
+
+          {/* Right: phone mockup */}
+          {isWide && (
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <StarSVG size={28} color="#fdba74" style={{ position: 'absolute', top: -24, right: -20, zIndex: 2 }} />
+              <StarSVG size={16} color="#818cf8" style={{ position: 'absolute', bottom: 20, left: -20, zIndex: 2 }} />
+              <Phone tilt={2}><RoutineScreen /></Phone>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Features ── */}
-      <div style={{ padding: '0 24px 100px', maxWidth: 960, margin: '0 auto' }}>
+      {/* ══════════════════════════════════════════════════════ PAIN */}
+      <Section bg={T.white}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
-          <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 700, margin: '0 0 12px' }}>
-            Everything a family needs
+          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, margin: '0 0 12px' }}>
+            It's 7:58am. Sound familiar?
           </h2>
-          <p style={{ fontSize: 16, color: T.inkMute, maxWidth: 480, margin: '0 auto' }}>
-            Built for the real chaos of family mornings — and the quiet magic of bedtime.
+          <p style={{ fontSize: 16, color: T.inkMute, maxWidth: 460, margin: '0 auto' }}>
+            If this is your morning, you're not alone — and it's not your fault.
           </p>
         </div>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: 18,
-        }}>
-          {FEATURES.map(({ icon: Icon, title, desc, bg, shadow }) => (
-            <div
-              key={title}
-              style={{
-                background: T.white, borderRadius: 24,
-                padding: '26px 22px',
-                border: `1.5px solid ${T.border}`,
-                boxShadow: T.shadow,
-                transition: 'transform 200ms ease, box-shadow 200ms ease',
-                cursor: 'default',
-              }}
-              onMouseEnter={e => { const d = e.currentTarget as HTMLDivElement; d.style.transform = 'translateY(-4px)'; d.style.boxShadow = `0 12px 36px rgba(180,120,80,0.15)`; }}
-              onMouseLeave={e => { const d = e.currentTarget as HTMLDivElement; d.style.transform = ''; d.style.boxShadow = T.shadow; }}
-            >
-              <div style={{
-                width: 52, height: 52, borderRadius: 16, background: bg,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginBottom: 18,
-                boxShadow: `0 6px 18px ${shadow}`,
-              }}>
-                <Icon size={24} color="#fff" strokeWidth={2.2} />
-              </div>
-              <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 8 }}>{title}</div>
-              <div style={{ fontSize: 14, color: T.inkMute, lineHeight: 1.65 }}>{desc}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 18 }}>
+          {[
+            { bg: '#fff1e8', border: 'rgba(249,115,22,0.18)', quote: '"Put your shoes on." × 4', sub: 'You said it nicely the first time. Less nicely the fourth.' },
+            { bg: '#eef2ff', border: 'rgba(67,56,202,0.15)', quote: '"Did you brush your teeth?"', sub: 'The eternal question. Answered with a suspicious amount of confidence.' },
+            { bg: T.greenLight, border: 'rgba(4,120,87,0.15)', quote: '"I forgot my water bottle."', sub: 'Third time this week. Everyone\'s already late.' },
+          ].map(({ bg, border, quote, sub }) => (
+            <div key={quote} style={{ background: bg, borderRadius: 22, padding: '22px 20px', border: `1.5px solid ${border}` }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: T.ink, marginBottom: 8 }}>{quote}</div>
+              <div style={{ fontSize: 14, color: T.inkMute, lineHeight: 1.6 }}>{sub}</div>
             </div>
           ))}
         </div>
-      </div>
-
-      {/* ── How it works ── */}
-      <div style={{ background: T.creamDeep, padding: '80px 24px' }}>
-        <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 700, margin: '0 0 12px' }}>
-            Up and running in minutes
-          </h2>
-          <p style={{ fontSize: 16, color: T.inkMute, marginBottom: 52 }}>
-            No tutorial needed. Most families have their first routine live in under five minutes.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, textAlign: 'left' }}>
-            {STEPS.map(({ n, title, body }) => (
-              <div
-                key={n}
-                style={{
-                  background: T.white, borderRadius: 22, padding: '22px 24px',
-                  border: `1.5px solid ${T.border}`,
-                  boxShadow: T.shadow,
-                  display: 'flex', alignItems: 'flex-start', gap: 20,
-                }}
-              >
-                <div style={{
-                  width: 44, height: 44, borderRadius: 14, flexShrink: 0,
-                  background: T.orangeLight, border: `2px solid rgba(249,115,22,0.20)`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 20, fontWeight: 700, color: T.orange,
-                }}>
-                  {n}
-                </div>
-                <div>
-                  <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 4 }}>{title}</div>
-                  <div style={{ fontSize: 14, color: T.inkMute, lineHeight: 1.65 }}>{body}</div>
-                </div>
-              </div>
-            ))}
+        <div style={{ textAlign: 'center', marginTop: 40 }}>
+          <div style={{ display: 'inline-block', background: T.orangeLight, borderRadius: 18, padding: '14px 24px', border: `1.5px solid rgba(249,115,22,0.18)` }}>
+            <span style={{ fontSize: 15, fontWeight: 700, color: T.orange }}>There's a better way. And your kids will actually love it.</span>
           </div>
         </div>
-      </div>
+      </Section>
 
-      {/* ── Final CTA ── */}
-      <div style={{ padding: '100px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 60%, rgba(249,115,22,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      {/* ══════════════════════════════════════════════════ AUTONOMY */}
+      <Section bg={T.cream}>
+        <BlobBg color="rgba(249,115,22,0.06)" style={{ width: 400, top: -80, right: -80, zIndex: 0 }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <FeatureRow
+            phone={<Phone><RoutineScreen /></Phone>}
+            text={
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: T.orange, letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: 12 }}>Autonomy</div>
+                <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700, lineHeight: 1.1, margin: '0 0 18px' }}>
+                  Your kid,<br /><span style={{ color: T.orange }}>fully in charge.</span>
+                </h2>
+                <p style={{ fontSize: 16, color: T.inkMute, lineHeight: 1.7, marginBottom: 24, maxWidth: 420 }}>
+                  When children have their own checklist, they stop asking you what comes next. They just do it. Routine Stars makes the routine theirs — with tasks to tap, stars to earn, and the quiet pride of "I did it myself."
+                </p>
+                <p style={{ fontSize: 15, color: T.inkMute, lineHeight: 1.7, marginBottom: 28, maxWidth: 420 }}>
+                  Most parents notice <strong style={{ color: T.ink }}>fewer arguments within the first week.</strong> Not because their kids changed — but because the dynamic did.
+                </p>
+                <button style={btnPrimary()} onClick={onGetStarted}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = ''; }}>
+                  Try it free <ChevronRight size={16} />
+                </button>
+              </div>
+            }
+          />
+        </div>
+      </Section>
 
-        <div style={{ position: 'relative', maxWidth: 560, margin: '0 auto' }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: 22, margin: '0 auto 24px',
-            background: 'linear-gradient(135deg,#f97316,#fdba74)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 8px 28px rgba(249,115,22,0.32)',
-          }}>
+      {/* ════════════════════════════════════════════════════ MOODS */}
+      <Section bg="#f0f4ff">
+        <BlobBg color="rgba(67,56,202,0.07)" style={{ width: 380, bottom: -60, left: -80, zIndex: 0 }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <FeatureRow
+            reverse
+            phone={<Phone><MoodScreen /></Phone>}
+            text={
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: T.indigo, letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: 12 }}>Mood insights</div>
+                <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700, lineHeight: 1.1, margin: '0 0 18px', color: '#1e1b4b' }}>
+                  A window into<br /><span style={{ color: T.indigo }}>how they're really doing.</span>
+                </h2>
+                <p style={{ fontSize: 16, color: '#4338ca99', lineHeight: 1.7, marginBottom: 20, maxWidth: 420 }}>
+                  Every morning and evening, your child picks how they're feeling — happy, okay, sad, frustrated. Over time, you'll see the whole week at a glance.
+                </p>
+                <p style={{ fontSize: 15, color: '#4338ca99', lineHeight: 1.7, marginBottom: 28, maxWidth: 420 }}>
+                  <strong style={{ color: '#1e1b4b' }}>Spot patterns a busy schedule makes easy to miss.</strong> Is she always low on Monday? Does he light up after a weekend? The data is there — quietly, without pressure.
+                </p>
+                <div style={{ background: T.white, borderRadius: 18, padding: '14px 18px', border: '1.5px solid rgba(67,56,202,0.15)', maxWidth: 380 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: T.indigo, marginBottom: 4 }}>Catch a hard week early.</div>
+                  <div style={{ fontSize: 13, color: '#6366f1aa', lineHeight: 1.6 }}>Before it becomes a harder conversation — you'll already know something's off. That's priceless.</div>
+                </div>
+              </div>
+            }
+          />
+        </div>
+      </Section>
+
+      {/* ══════════════════════════════════════════ AFFIRMATIONS */}
+      <Section bg="#f0fdf4">
+        <BlobBg color="rgba(4,120,87,0.07)" style={{ width: 360, top: -40, right: -60, zIndex: 0 }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <FeatureRow
+            phone={<Phone><AffirmationScreen /></Phone>}
+            text={
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: T.green, letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: 12 }}>Daily affirmations</div>
+                <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700, lineHeight: 1.1, margin: '0 0 18px', color: '#064e3b' }}>
+                  Words that shape<br /><span style={{ color: T.green }}>who they become.</span>
+                </h2>
+                <p style={{ fontSize: 16, color: '#065f46aa', lineHeight: 1.7, marginBottom: 20, maxWidth: 420 }}>
+                  Each completed routine ends with a personal affirmation. <em>"I am brave." "I can do hard things." "I am loved just as I am."</em>
+                </p>
+                <p style={{ fontSize: 15, color: '#065f46aa', lineHeight: 1.7, marginBottom: 20, maxWidth: 420 }}>
+                  A few seconds of positive self-talk, delivered consistently, <strong style={{ color: '#064e3b' }}>compounds into real confidence.</strong> Write your own or use the built-in library.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 380 }}>
+                  {["I am exactly enough.", "Today is going to be a great day.", "I am brave and kind."].map(a => (
+                    <div key={a} style={{ background: T.white, borderRadius: 14, padding: '10px 16px', border: '1.5px solid rgba(4,120,87,0.15)', fontSize: 14, fontWeight: 600, color: '#064e3b' }}>
+                      ✦ {a}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            }
+          />
+        </div>
+      </Section>
+
+      {/* ══════════════════════════════════════════ ACHIEVEMENTS */}
+      <Section bg="#fdf2f8">
+        <BlobBg color="rgba(157,23,77,0.06)" style={{ width: 360, bottom: -60, right: -60, zIndex: 0 }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <FeatureRow
+            reverse
+            phone={<Phone><AchievementScreen /></Phone>}
+            text={
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: T.pink, letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: 12 }}>Stars & streaks</div>
+                <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700, lineHeight: 1.1, margin: '0 0 18px', color: '#4a0026' }}>
+                  Motivation that<br /><span style={{ color: T.pink }}>never runs out.</span>
+                </h2>
+                <p style={{ fontSize: 16, color: '#9d174d99', lineHeight: 1.7, marginBottom: 20, maxWidth: 420 }}>
+                  Stars for every task. Streaks for every day completed. Badges for reaching milestones — Morning Star, Night Owl, Calm Cloud.
+                </p>
+                <p style={{ fontSize: 15, color: '#9d174d99', lineHeight: 1.7, marginBottom: 20, maxWidth: 420 }}>
+                  Routine Stars uses the same mechanics as the games your kids already love — <strong style={{ color: '#4a0026' }}>pointed at brushing their teeth instead.</strong>
+                </p>
+                <div style={{ background: T.white, borderRadius: 18, padding: '14px 18px', border: '1.5px solid rgba(157,23,77,0.15)', maxWidth: 380 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: T.pink, marginBottom: 4 }}>The moment it clicks.</div>
+                  <div style={{ fontSize: 13, color: '#9d174daa', lineHeight: 1.6 }}>When a child says "I don't want to lose my streak" — you've crossed a line from nagging to ownership. That's the goal.</div>
+                </div>
+              </div>
+            }
+          />
+        </div>
+      </Section>
+
+      {/* ══════════════════════════════════════════ HOW IT WORKS */}
+      <Section bg={T.creamDeep}>
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, margin: '0 0 12px' }}>Up and running in 5 minutes</h2>
+          <p style={{ fontSize: 16, color: T.inkMute }}>No tutorial needed. Most families have their first routine live before bedtime.</p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 18 }}>
+          {[
+            { n: '1', title: 'Create a free account', body: 'Drop your email and we send a magic sign-in link. No password to forget.', color: T.orangeLight, border: 'rgba(249,115,22,0.18)', accent: T.orange },
+            { n: '2', title: 'Add your children', body: 'Name, age, and a fun animal avatar. Each child gets their own view.', color: T.indigoLight, border: 'rgba(67,56,202,0.15)', accent: T.indigo },
+            { n: '3', title: 'Build the first routine', body: 'Pick tasks from the library, write your own, drag to reorder. It takes two minutes.', color: T.greenLight, border: 'rgba(4,120,87,0.15)', accent: T.green },
+          ].map(({ n, title, body, color, border, accent }) => (
+            <div key={n} style={{ background: color, borderRadius: 22, padding: '24px 20px', border: `1.5px solid ${border}` }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: accent, marginBottom: 10 }}>{n}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>{title}</div>
+              <div style={{ fontSize: 14, color: T.inkMute, lineHeight: 1.65 }}>{body}</div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ══════════════════════════════════════════════ FINAL CTA */}
+      <Section style={{ textAlign: 'center', padding: '100px 24px' }}>
+        <BlobBg color="rgba(249,115,22,0.07)" style={{ width: 480, top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 0 }} />
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 560, margin: '0 auto' }}>
+          <div style={{ width: 72, height: 72, borderRadius: 22, margin: '0 auto 24px', background: 'linear-gradient(135deg,#f97316,#fdba74)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 0 rgba(0,0,0,0.08), 0 14px 36px rgba(249,115,22,0.30)' }}>
             <Star size={34} color="#fff" fill="#fff" />
           </div>
-
-          <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700, margin: '0 0 16px' }}>
-            Ready for calmer mornings?
+          <h2 style={{ fontSize: 'clamp(28px, 4.5vw, 46px)', fontWeight: 700, margin: '0 0 16px', lineHeight: 1.15 }}>
+            The mornings you've been dreaming of start tonight.
           </h2>
           <p style={{ fontSize: 16, color: T.inkMute, lineHeight: 1.65, marginBottom: 36 }}>
-            Join families who've replaced the daily chaos with a simple routine their kids actually follow.
+            Set up tonight. Tomorrow morning, hand your child the tablet and watch what happens.
           </p>
-
-          <button
-            onClick={onGetStarted}
-            style={{
-              background: T.orange, color: '#fff', border: 'none',
-              borderRadius: 99, padding: '18px 44px',
-              fontSize: 18, fontWeight: 700, cursor: 'pointer',
-              fontFamily: T.fonts,
-              boxShadow: `0 6px 0 rgba(0,0,0,0.10), 0 14px 36px rgba(249,115,22,0.30)`,
-              display: 'inline-flex', alignItems: 'center', gap: 10,
-              transition: 'all 180ms ease',
-            }}
-            onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-2px)'; b.style.boxShadow = `0 8px 0 rgba(0,0,0,0.10), 0 20px 44px rgba(249,115,22,0.38)`; }}
-            onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = ''; b.style.boxShadow = `0 6px 0 rgba(0,0,0,0.10), 0 14px 36px rgba(249,115,22,0.30)`; }}
-          >
-            Start for free
+          <button style={{ ...btnPrimary(true), margin: '0 auto' }} onClick={onGetStarted}
+            onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = ''; }}>
+            Start free — no card needed
             <ChevronRight size={20} />
           </button>
-
-          <p style={{ marginTop: 16, fontSize: 13, color: T.inkMute }}>
-            Free forever · No app store needed · Works on any browser
-          </p>
+          <p style={{ marginTop: 14, fontSize: 13, color: T.inkMute }}>Free forever · Works in any browser · No app download</p>
         </div>
-      </div>
+      </Section>
 
-      {/* ── Footer ── */}
-      <div style={{ borderTop: `1.5px solid ${T.border}`, padding: '24px', textAlign: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{
-            width: 24, height: 24, borderRadius: 7,
-            background: 'linear-gradient(135deg,#f97316,#fdba74)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
+      {/* ══════════════════════════════════════════════════ FOOTER */}
+      <div style={{ borderTop: `1.5px solid ${T.border}`, padding: '22px 24px', textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 6 }}>
+          <div style={{ width: 24, height: 24, borderRadius: 7, background: 'linear-gradient(135deg,#f97316,#fdba74)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Star size={12} color="#fff" fill="#fff" />
           </div>
           <span style={{ fontSize: 15, fontWeight: 700 }}>Routine Stars</span>
         </div>
-        <p style={{ fontSize: 12, color: T.inkMute, margin: 0 }}>
-          Made with love for families everywhere.
-        </p>
+        <p style={{ fontSize: 12, color: T.inkMute, margin: 0 }}>Made with love for families everywhere.</p>
       </div>
+
     </div>
   );
 };
