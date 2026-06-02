@@ -3,6 +3,7 @@ import { TASK_CATALOG_BY_ID } from '@/lib/types';
 import type { ChildProfileRecord, HouseholdRecord, RoutineRecord, RoutineTaskRecord } from './models';
 import { SupabaseChildProfileRepository } from './supabase-child-profile-repository';
 import { SupabaseRoutineRepository } from './supabase-routine-repository';
+import { SupabaseProgressRepository } from './supabase-progress-repository';
 import { getSupabaseClient } from '@/lib/supabase/client';
 
 export interface CloudHouseholdState {
@@ -42,12 +43,15 @@ const buildTaskFromCloud = (task: RoutineTaskRecord): Task => {
 export const mapCloudHouseholdToChildren = (input: {
   childProfiles: ChildProfileRecord[];
   routinesByChildId: Record<string, { routines: RoutineRecord[]; routineTasks: RoutineTaskRecord[] }>;
+  // Completed task IDs from daily_task_progress for today, keyed by child profile ID.
+  // When absent (e.g. tests, offline fallback) all tasks default to incomplete.
+  completionsByChildId?: Record<string, { morning: Set<string>; evening: Set<string> }>;
 }) =>
   input.childProfiles.map((profile) => {
     const childRoutines = input.routinesByChildId[profile.id] ?? { routines: [], routineTasks: [] };
     const routines = Object.fromEntries(
       childRoutines.routines.map((routine) => [routine.type, routine])
-    ) as Partial<Record<RoutineType, RoutineRecord>>;
+    ) as Partial<Record<string, RoutineRecord>>;
     const tasksByRoutineId = Object.fromEntries(
       childRoutines.routines.map((routine) => [
         routine.id,
@@ -58,14 +62,13 @@ export const mapCloudHouseholdToChildren = (input: {
       ])
     ) as Record<string, Task[]>;
 
-    // Restore today's completion from the title-based task_completion field
-    const todayKey = getLocalProgressDate(new Date());
-    const todayEntry = profile.taskCompletion?.[todayKey];
-    const todayCompletion = (typeof todayEntry === 'object' && todayEntry !== null)
-      ? todayEntry as { morning: string[]; evening: string[] }
-      : null;
-    const morningCompleted = new Set(todayCompletion?.morning ?? []);
-    const eveningCompleted = new Set(todayCompletion?.evening ?? []);
+    // Completion is read from daily_task_progress (matched by task UUID), not from
+    // the task_completion JSONB column. The JSONB column was overwritten by config
+    // sync and could end up with a stale "all done" entry from the previous day.
+    const completions = input.completionsByChildId?.[profile.id] ?? {
+      morning: new Set<string>(),
+      evening: new Set<string>(),
+    };
 
     // Restore streakDate from the special _streakDate sentinel key.
     const streakDate = typeof profile.taskCompletion?.['_streakDate'] === 'string'
@@ -74,6 +77,7 @@ export const mapCloudHouseholdToChildren = (input: {
 
     // Streak reset: if the last recorded streak day is neither today nor
     // yesterday, the child missed at least one day → reset to 0.
+    const todayKey = getLocalProgressDate(new Date());
     const yesterday = getLocalProgressDate(new Date(Date.now() - 86_400_000));
     const streakIsStale =
       streakDate !== undefined &&
@@ -103,9 +107,9 @@ export const mapCloudHouseholdToChildren = (input: {
           : { ...DEFAULT_SCHEDULE.evening },
       },
       morning: (routines.morning ? tasksByRoutineId[routines.morning.id] ?? [] : [])
-        .map((t) => ({ ...t, completed: morningCompleted.has(t.title) })),
+        .map((t) => ({ ...t, completed: completions.morning.has(t.id) })),
       evening: (routines.evening ? tasksByRoutineId[routines.evening.id] ?? [] : [])
-        .map((t) => ({ ...t, completed: eveningCompleted.has(t.title) })),
+        .map((t) => ({ ...t, completed: completions.evening.has(t.id) })),
     };
   });
 
@@ -119,16 +123,22 @@ export const loadCloudHouseholdState = async (
 
   const childRepository = new SupabaseChildProfileRepository(supabase);
   const routineRepository = new SupabaseRoutineRepository(supabase);
+  const progressRepository = new SupabaseProgressRepository(supabase);
   const childProfiles = await childRepository.listByHousehold(household.id);
-  const routinePairs = await Promise.all(
-    childProfiles.map(async (profile) => [profile.id, await routineRepository.listByChild(profile.id)] as const)
-  );
+  const [routinePairs, completionsByChildId] = await Promise.all([
+    Promise.all(
+      childProfiles.map(async (profile) => [profile.id, await routineRepository.listByChild(profile.id)] as const)
+    ),
+    progressRepository.getCompletedTaskIds({
+      childProfileIds: childProfiles.map((p) => p.id),
+      progressDate: getLocalProgressDate(new Date()),
+    }),
+  ]);
 
-  // mapCloudHouseholdToChildren now applies task_completion directly from the
-  // child profile, so no separate progress query is needed.
   const children = mapCloudHouseholdToChildren({
     childProfiles,
     routinesByChildId: Object.fromEntries(routinePairs),
+    completionsByChildId,
   });
 
   return {

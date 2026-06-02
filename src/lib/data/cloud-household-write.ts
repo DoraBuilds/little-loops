@@ -4,7 +4,6 @@ import { TASK_CATALOG } from '@/lib/types';
 import { SupabaseChildProfileRepository } from './supabase-child-profile-repository';
 import { SupabaseHouseholdRepository } from './supabase-household-repository';
 import { SupabaseRoutineRepository } from './supabase-routine-repository';
-import { getLocalProgressDate } from './cloud-household-state';
 import { getSupabaseClient } from '@/lib/supabase/client';
 
 const findTemplateForTask = (
@@ -83,12 +82,8 @@ export const saveHouseholdConfigToCloud = async (input: {
         badges: child.badges ?? {},
         moods: (child.moods ?? []).map((m) => ({ day: m.day, emoji: m.emoji, note: m.note ?? null })),
         taskCompletion: {
-          [getLocalProgressDate(new Date())]: {
-            morning: child.morning.filter((t) => t.completed).map((t) => t.title),
-            evening: child.evening.filter((t) => t.completed).map((t) => t.title),
-          },
-          // Special sentinel: last day the streak was incremented.
-          // Stored alongside the date-keyed completion entries so no schema change is needed.
+          // Completion is now read from daily_task_progress (written on each task toggle),
+          // so we no longer store it here. Only the streak sentinel is kept.
           _streakDate: child.streakDate ?? null,
         },
       });
