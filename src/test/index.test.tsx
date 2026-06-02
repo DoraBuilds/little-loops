@@ -267,6 +267,15 @@ vi.mock("@/components/AccountEntryScreen", () => ({
   ),
 }));
 
+vi.mock("@/pages/LandingPage", () => ({
+  LandingPage: ({ onGetStarted }: { onGetStarted: () => void }) => (
+    <div>
+      <div data-testid="landing-page">landing</div>
+      <button onClick={onGetStarted}>get-started</button>
+    </div>
+  ),
+}));
+
 vi.mock("@/components/HouseholdLoadErrorScreen", () => ({
   HouseholdLoadErrorScreen: ({
     error,
@@ -560,13 +569,13 @@ describe("Index", () => {
     expect(screen.getByTestId("active-routine")).toHaveTextContent("evening");
   });
 
-  it("shows the account entry flow when there is no saved data and no signed-in parent", async () => {
+  it("shows the landing page when there is no saved data and no signed-in parent", async () => {
     render(<Index />);
 
-    expect(await screen.findByTestId("account-entry-screen")).toBeInTheDocument();
+    expect(await screen.findByTestId("landing-page")).toBeInTheDocument();
   });
 
-  it("keeps signed-out users on the account entry flow even when stale local data exists", async () => {
+  it("keeps signed-out users on the landing page even when stale local data exists", async () => {
     localStorage.setItem(
       "routine_stars_data",
       JSON.stringify({
@@ -578,7 +587,7 @@ describe("Index", () => {
 
     render(<Index />);
 
-    expect(await screen.findByTestId("account-entry-screen")).toBeInTheDocument();
+    expect(await screen.findByTestId("landing-page")).toBeInTheDocument();
     expect(screen.queryByTestId("child-count")).toBeNull();
   });
 

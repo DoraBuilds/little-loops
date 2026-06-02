@@ -41,6 +41,6 @@ export type Child = {
   evening: Task[];
 };
 
-export type AppView = 'account' | 'import' | 'recovery' | 'setup' | 'home' | 'routine' | 'parent' | 'advanced-settings' | 'bootstrap-error';
+export type AppView = 'landing' | 'account' | 'import' | 'recovery' | 'setup' | 'home' | 'routine' | 'parent' | 'advanced-settings' | 'bootstrap-error';
 
 export { AGE_BUCKETS, DEFAULT_CHILDREN, groupTasksByAge, ICON_OPTIONS, TASK_CATALOG, TASK_CATALOG_BY_ID, TASK_LIBRARY };

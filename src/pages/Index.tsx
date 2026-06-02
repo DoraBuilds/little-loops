@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { LandingPage } from '@/pages/LandingPage';
 import { AccountEntryScreen } from '@/components/AccountEntryScreen';
 import { ExistingFamilyRecoveryScreen } from '@/components/ExistingFamilyRecoveryScreen';
 import { HouseholdLoadErrorScreen } from '@/components/HouseholdLoadErrorScreen';
@@ -238,7 +239,13 @@ const Index = () => {
         setActiveChildId(null);
         setSetupComplete(false);
         setHomeScene('bike');
-        setView('account');
+        // Show landing for fresh loads; return to sign-in after an explicit sign-out
+        // (when the user was already inside the app, view !== 'landing' and !== 'setup').
+        setView((prev) =>
+          prev === 'home' || prev === 'parent' || prev === 'advanced-settings' || prev === 'routine'
+            ? 'account'
+            : 'landing'
+        );
         lastSyncedConfigRef.current = null;
         shouldSyncFirstConfigRef.current = false;
         skipLocalPersistenceRef.current = false;
@@ -429,7 +436,7 @@ const Index = () => {
             ? 'recovery'
             : authStatus === 'signed_in' && householdStatus !== 'error'
               ? 'setup'
-              : 'account';
+              : 'landing';
         setView(nextView);
         shouldSyncFirstConfigRef.current = authStatus === 'signed_in' && householdStatus !== 'error';
         setIsReady(true);
@@ -1121,8 +1128,12 @@ const Index = () => {
     return null;
   }
 
+  if (view === 'landing') {
+    return <LandingPage onGetStarted={() => setView('account')} />;
+  }
+
   if (view === 'account') {
-    return <AccountEntryScreen />;
+    return <AccountEntryScreen onBack={() => setView('landing')} />;
   }
 
   if (view === 'bootstrap-error') {
