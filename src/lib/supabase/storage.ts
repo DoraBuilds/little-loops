@@ -5,5 +5,5 @@ import { getSafeStorage } from '@/lib/storage/safe-storage';
  * Private mode can throw on writes). When storage is not writable, fall back to
  * in-memory storage for the current session so auth can complete.
  */
-export const createSupabaseAuthStorage = () => getSafeStorage('__routine_stars_supabase_auth_storage_test__');
+export const createSupabaseAuthStorage = () => getSafeStorage('__little_loops_supabase_auth_storage_test__');
 

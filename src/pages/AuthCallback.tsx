@@ -187,7 +187,7 @@ const AuthCallback = () => {
               onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = ''; }}
             >
-              Continue to Routine Stars
+              Continue to Little Loops
             </button>
           </>
 

@@ -108,7 +108,7 @@ describe("ChildSelector parent gate", () => {
       dueRoutineByChild: { "child-1": null },
     });
 
-    expect(screen.getByRole("heading", { name: "Routine Stars" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Little Loops" })).toBeInTheDocument();
     expect(screen.getByText("Who is ready to shine today?")).toBeInTheDocument();
     expect(screen.getByText("No routine is due right now")).toBeInTheDocument();
     expect(screen.getByText("Choose a child to play, explore, or check in later.")).toBeInTheDocument();

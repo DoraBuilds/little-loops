@@ -66,7 +66,7 @@ export const AccountEntryScreen = ({ onBack }: Props) => (
       }}>
         <Star size={30} color="#fff" fill="#fff" />
       </div>
-      <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.01em' }}>Routine Stars</div>
+      <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.01em' }}>Little Loops</div>
       <div style={{ fontSize: 14, color: T.inkMute, marginTop: 4 }}>Parent account</div>
     </div>
 

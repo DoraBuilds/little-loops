@@ -68,7 +68,7 @@ describe('saveHouseholdConfigToCloud', () => {
     await saveHouseholdConfigToCloud({
       household: {
         id: 'house-1',
-        name: 'Routine Stars Family',
+        name: 'Little Loops Family',
         timezone: 'Europe/Madrid',
         homeScene: 'bike',
         createdByUserId: 'user-1',
@@ -146,7 +146,7 @@ describe('saveHouseholdConfigToCloud', () => {
     await saveHouseholdConfigToCloud({
       household: {
         id: 'house-1',
-        name: 'Routine Stars Family',
+        name: 'Little Loops Family',
         timezone: 'Europe/Madrid',
         homeScene: 'bike',
         createdByUserId: 'user-1',
@@ -175,7 +175,7 @@ describe('saveHouseholdConfigToCloud', () => {
       saveHouseholdConfigToCloud({
         household: {
           id: 'house-1',
-          name: 'Routine Stars Family',
+          name: 'Little Loops Family',
           timezone: 'Europe/Madrid',
           homeScene: 'bike',
           createdByUserId: 'user-1',

@@ -1,4 +1,4 @@
-# Routine Stars — Claude Instructions
+# Little Loops — Claude Instructions
 
 ## Git & Deployment
 
@@ -13,7 +13,7 @@ When deploying:
 If git is not initialized locally, run:
 ```
 git init
-git remote add origin https://github.com/DoraBuilds/routine-stars.git
+git remote add origin https://github.com/DoraBuilds/little-loops.git
 git fetch origin main
 ```
 Then add only the files you changed — do NOT reset to origin.

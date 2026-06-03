@@ -9,7 +9,7 @@ const appVersion =
   `dev-${Date.now()}`;
 
 const versionManifestPlugin = () => ({
-  name: "routine-stars-version-manifest",
+  name: "little-loops-version-manifest",
   generateBundle() {
     this.emitFile({
       type: "asset",
@@ -21,7 +21,7 @@ const versionManifestPlugin = () => ({
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: process.env.GITHUB_ACTIONS ? "/routine-stars/" : "/",
+  base: process.env.GITHUB_ACTIONS ? "/little-loops/" : "/",
   server: {
     host: "::",
     port: 8080,

@@ -430,7 +430,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -452,7 +452,7 @@ describe("Index", () => {
       ],
     });
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify(createStoredState(true, yesterday()))
     );
 
@@ -470,7 +470,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -492,7 +492,7 @@ describe("Index", () => {
       ],
     });
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify(createStoredState(false, today()))
     );
 
@@ -505,7 +505,7 @@ describe("Index", () => {
       expect(screen.getByTestId("first-task-completed")).toHaveTextContent("true");
     });
 
-    const stored = JSON.parse(localStorage.getItem("routine_stars_data::user:user-1") ?? "{}");
+    const stored = JSON.parse(localStorage.getItem("little_loops_data::user:user-1") ?? "{}");
     expect(stored.version).toBe(CURRENT_LOCAL_APP_STATE_VERSION);
     expect(stored.lastReset).toBe(today());
     expect(stored.children[0].morning[0].completed).toBe(true);
@@ -517,7 +517,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -525,7 +525,7 @@ describe("Index", () => {
       updatedAt: "2026-04-20T10:00:00Z",
     };
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify({
         ...createStoredState(false, today()),
         children: [
@@ -577,7 +577,7 @@ describe("Index", () => {
 
   it("keeps signed-out users on the landing page even when stale local data exists", async () => {
     localStorage.setItem(
-      "routine_stars_data",
+      "little_loops_data",
       JSON.stringify({
         ...createStoredState(false, today()),
         setupComplete: true,
@@ -597,7 +597,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -620,7 +620,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -651,7 +651,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -660,7 +660,7 @@ describe("Index", () => {
     };
     loadCloudHouseholdState.mockRejectedValue(new Error("Network offline"));
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify({
         ...createStoredState(false, today()),
         setupComplete: true,
@@ -680,7 +680,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -711,7 +711,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -730,7 +730,7 @@ describe("Index", () => {
       ],
     });
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify({
         ...createStoredState(false, today()),
         setupComplete: true,
@@ -751,7 +751,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -763,7 +763,7 @@ describe("Index", () => {
       children: [],
     });
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify({
         ...createStoredState(false, today()),
         setupComplete: true,
@@ -782,7 +782,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -809,7 +809,7 @@ describe("Index", () => {
       ],
     });
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify({
         ...createStoredState(false, today()),
         setupComplete: true,
@@ -839,7 +839,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -873,7 +873,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -913,7 +913,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -956,7 +956,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -989,7 +989,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1018,7 +1018,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1058,7 +1058,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1081,7 +1081,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1093,7 +1093,7 @@ describe("Index", () => {
       children: [],
     });
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify({
         ...createStoredState(false, today()),
         setupComplete: true,
@@ -1113,7 +1113,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1159,7 +1159,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1182,7 +1182,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1194,7 +1194,7 @@ describe("Index", () => {
       children: [],
     });
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify({
         version: CURRENT_LOCAL_APP_STATE_VERSION,
         children: [],
@@ -1216,7 +1216,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1241,7 +1241,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1253,7 +1253,7 @@ describe("Index", () => {
       children: [],
     });
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify({
         ...createStoredState(false, today()),
         setupComplete: false,
@@ -1271,7 +1271,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1283,7 +1283,7 @@ describe("Index", () => {
       children: [],
     });
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify(createStoredState(false, today()))
     );
 
@@ -1298,7 +1298,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1316,7 +1316,7 @@ describe("Index", () => {
 
     expect(await screen.findByTestId("child-count")).toHaveTextContent("1");
 
-    const stored = JSON.parse(localStorage.getItem("routine_stars_data::user:user-1") ?? "{}");
+    const stored = JSON.parse(localStorage.getItem("little_loops_data::user:user-1") ?? "{}");
     expect(stored.setupComplete).toBe(true);
     expect(stored.children).toHaveLength(1);
     expect(stored.children[0].morning[0].title).toBe("Make bed");
@@ -1328,7 +1328,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1348,7 +1348,7 @@ describe("Index", () => {
       ],
     });
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify({
         ...createStoredState(false, today()),
         setupComplete: true,
@@ -1366,7 +1366,7 @@ describe("Index", () => {
       expect(authState.signOut).toHaveBeenCalledTimes(1);
     });
 
-    expect(localStorage.getItem("routine_stars_data::user:user-1")).toBeNull();
+    expect(localStorage.getItem("little_loops_data::user:user-1")).toBeNull();
     expect(await screen.findByTestId("account-entry-screen")).toBeInTheDocument();
   });
 
@@ -1376,7 +1376,7 @@ describe("Index", () => {
     authState.householdStatus = "ready";
     authState.household = {
       id: "house-1",
-      name: "Routine Stars Family",
+      name: "Little Loops Family",
       timezone: "Europe/Madrid",
       homeScene: "kite",
       createdByUserId: "user-1",
@@ -1395,7 +1395,7 @@ describe("Index", () => {
       ],
     });
     localStorage.setItem(
-      "routine_stars_data::user:user-1",
+      "little_loops_data::user:user-1",
       JSON.stringify({
         ...createStoredState(false, today()),
         setupComplete: true,
@@ -1409,7 +1409,7 @@ describe("Index", () => {
 
     expect(await screen.findByTestId("setup-child-count")).toHaveTextContent("1");
 
-    const stored = JSON.parse(localStorage.getItem("routine_stars_data::user:user-1") ?? "{}");
+    const stored = JSON.parse(localStorage.getItem("little_loops_data::user:user-1") ?? "{}");
     expect(stored.setupComplete).toBe(false);
     expect(stored.children).toHaveLength(1);
     expect(stored.children[0].name).toBe("Lily");

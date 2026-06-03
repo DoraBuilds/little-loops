@@ -131,7 +131,7 @@ const serializeHouseholdConfig = (input: {
 const ViewLoadingFallback = ({ title = 'Loading next step' }: { title?: string }) => (
   <div className="flex min-h-svh items-center justify-center px-5 py-10">
     <div className="w-full max-w-lg rounded-[32px] border border-border bg-card p-8 text-center shadow-card">
-      <p className="text-sm font-black uppercase tracking-[0.22em] text-primary">Routine Stars</p>
+      <p className="text-sm font-black uppercase tracking-[0.22em] text-primary">Little Loops</p>
       <h1 className="mt-4 text-3xl font-bold text-foreground">{title}</h1>
       <p className="mt-3 text-sm text-muted-foreground">This should only take a moment.</p>
     </div>

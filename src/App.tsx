@@ -69,7 +69,7 @@ const AppShell = () => {
           fallback={
             <div className="flex min-h-svh items-center justify-center px-5 py-10">
               <div className="w-full max-w-lg rounded-[32px] border border-border bg-card p-8 text-center shadow-card">
-                <p className="text-sm font-black uppercase tracking-[0.22em] text-primary">Loading Routine Stars</p>
+                <p className="text-sm font-black uppercase tracking-[0.22em] text-primary">Loading Little Loops</p>
                 <h1 className="mt-4 text-3xl font-bold text-foreground">Getting everything ready</h1>
                 <p className="mt-3 text-sm text-muted-foreground">
                   This should only take a moment.
@@ -93,7 +93,7 @@ const AppShell = () => {
             <div>
               <p className="text-sm font-black uppercase tracking-[0.22em] text-primary">Update Ready</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                A fresher version of Routine Stars is available.
+                A fresher version of Little Loops is available.
               </p>
             </div>
             <button

@@ -38,7 +38,7 @@ const isLocalStorageWritable = (testKey: string) => {
  * in-memory fallback. This prevents app/auth initialization from getting stuck
  * in environments where `localStorage` exists but rejects writes.
  */
-export const getSafeStorage = (testKey = '__routine_stars_storage_test__'): StorageLike => {
+export const getSafeStorage = (testKey = '__little_loops_storage_test__'): StorageLike => {
   if (isLocalStorageWritable(testKey)) {
     return window.localStorage;
   }

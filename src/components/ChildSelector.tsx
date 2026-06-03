@@ -76,7 +76,7 @@ export const ChildSelector = ({
       ? 'Morning routine time'
       : globalTheme === 'evening'
         ? 'Evening routine time'
-        : 'Routine Stars';
+        : 'Little Loops';
   const subtitle =
     globalTheme === 'morning'
       ? 'The sun is up and morning routines are ready.'

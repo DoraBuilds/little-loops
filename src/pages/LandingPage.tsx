@@ -276,7 +276,7 @@ export const LandingPage = ({ onGetStarted }: Props) => {
           <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg,#6366f1,#818cf8)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(99,102,241,0.35)' }}>
             <Star size={15} color="#fff" fill="#fff" />
           </div>
-          <span style={{ fontSize: 17, fontWeight: 700 }}>Routine Stars</span>
+          <span style={{ fontSize: 17, fontWeight: 700 }}>Little Loops</span>
         </div>
         <button style={btnPrimary()} onClick={onGetStarted}
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; }}
@@ -305,7 +305,7 @@ export const LandingPage = ({ onGetStarted }: Props) => {
               <span style={{ color: T.indigo }}>the alarm clock.</span>
             </h1>
             <p style={{ fontSize: 'clamp(16px, 2vw, 19px)', color: T.inkMute, lineHeight: 1.65, maxWidth: 480, margin: '16px 0 36px' }}>
-              Routine Stars gives every child their own colourful morning and evening checklist — so they know exactly what to do next. Without you having to say it.
+              Little Loops gives every child their own colourful morning and evening checklist — so they know exactly what to do next. Without you having to say it.
             </p>
 
             <button style={btnPrimary(true)} onClick={onGetStarted}
@@ -369,7 +369,7 @@ export const LandingPage = ({ onGetStarted }: Props) => {
                   Your kid,<br /><span style={{ color: T.indigo }}>fully in charge.</span>
                 </h2>
                 <p style={{ fontSize: 16, color: T.inkMute, lineHeight: 1.7, marginBottom: 24, maxWidth: 420 }}>
-                  When children have their own checklist, they stop asking you what comes next. They just do it. Routine Stars makes the routine theirs — with tasks to tap, stars to earn, and the quiet pride of "I did it myself."
+                  When children have their own checklist, they stop asking you what comes next. They just do it. Little Loops makes the routine theirs — with tasks to tap, stars to earn, and the quiet pride of "I did it myself."
                 </p>
                 <p style={{ fontSize: 15, color: T.inkMute, lineHeight: 1.7, marginBottom: 28, maxWidth: 420 }}>
                   Most parents notice <strong style={{ color: T.ink }}>fewer arguments within the first week.</strong> Not because their kids changed — but because the dynamic did.
@@ -462,7 +462,7 @@ export const LandingPage = ({ onGetStarted }: Props) => {
                   Stars for every task. Streaks for every day completed. Badges for reaching milestones — Morning Star, Night Owl, Calm Cloud.
                 </p>
                 <p style={{ fontSize: 15, color: T.inkMute, lineHeight: 1.7, marginBottom: 20, maxWidth: 420 }}>
-                  Routine Stars uses the same mechanics as the games your kids already love — <strong style={{ color: T.ink }}>pointed at brushing their teeth instead.</strong>
+                  Little Loops uses the same mechanics as the games your kids already love — <strong style={{ color: T.ink }}>pointed at brushing their teeth instead.</strong>
                 </p>
                 <div style={{ background: T.white, borderRadius: 18, padding: '14px 18px', border: `1.5px solid rgba(167,139,250,0.20)`, maxWidth: 380 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: T.purple, marginBottom: 4 }}>The moment it clicks.</div>
@@ -524,7 +524,7 @@ export const LandingPage = ({ onGetStarted }: Props) => {
           <div style={{ width: 24, height: 24, borderRadius: 7, background: 'linear-gradient(135deg,#6366f1,#818cf8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Star size={12} color="#fff" fill="#fff" />
           </div>
-          <span style={{ fontSize: 15, fontWeight: 700 }}>Routine Stars</span>
+          <span style={{ fontSize: 15, fontWeight: 700 }}>Little Loops</span>
         </div>
         <p style={{ fontSize: 12, color: T.inkMute, margin: 0 }}>Made with love for families everywhere.</p>
       </div>

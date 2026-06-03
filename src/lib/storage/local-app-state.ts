@@ -1,7 +1,8 @@
 import type { Child, HomeScene } from '@/lib/types';
 import { getSafeStorage } from './safe-storage';
 
-export const LOCAL_APP_STATE_STORAGE_KEY = 'routine_stars_data';
+export const LOCAL_APP_STATE_STORAGE_KEY = 'little_loops_data';
+const LEGACY_STORAGE_KEY = 'routine_stars_data';
 export const CURRENT_LOCAL_APP_STATE_VERSION = 1;
 
 type LocalAppStateScope =
@@ -61,6 +62,23 @@ const normalizeLocalAppState = (value: unknown): LocalAppState | null => {
   };
 };
 
+const migrateFromLegacyKey = () => {
+  if (typeof window === 'undefined' || !('localStorage' in window)) return;
+  const ls = window.localStorage;
+  if (ls.getItem(LOCAL_APP_STATE_STORAGE_KEY)) return;
+  const toMigrate: string[] = [];
+  for (let i = 0; i < ls.length; i++) {
+    const key = ls.key(i);
+    if (key && (key === LEGACY_STORAGE_KEY || key.startsWith(`${LEGACY_STORAGE_KEY}::`))) {
+      toMigrate.push(key);
+    }
+  }
+  for (const oldKey of toMigrate) {
+    const value = ls.getItem(oldKey);
+    if (value) ls.setItem(`${LOCAL_APP_STATE_STORAGE_KEY}${oldKey.slice(LEGACY_STORAGE_KEY.length)}`, value);
+  }
+};
+
 const loadBestState = (storage: { getItem: (k: string) => string | null; setItem: (k: string, v: string) => void; length: number; key: (i: number) => string | null }): LocalAppState | null => {
   const candidates: LocalAppState[] = [];
   const tryParse = (raw: string | null) => {
@@ -82,7 +100,8 @@ const loadBestState = (storage: { getItem: (k: string) => string | null; setItem
 };
 
 export const loadLocalAppState = (scope?: LocalAppStateScope): LocalAppState | null => {
-  const storage = getSafeStorage('__routine_stars_local_app_state_test__');
+  migrateFromLegacyKey();
+  const storage = getSafeStorage('__little_loops_local_app_state_test__');
   // When no scope given, scan all candidate keys and use the one with most children
   if (!scope) return loadBestState(storage);
   const saved = storage.getItem(getScopedStorageKey(scope));
@@ -100,12 +119,12 @@ export const saveLocalAppState = (state: Omit<LocalAppState, 'version'>, scope?:
     ...state,
   };
 
-  const storage = getSafeStorage('__routine_stars_local_app_state_test__');
+  const storage = getSafeStorage('__little_loops_local_app_state_test__');
   storage.setItem(getScopedStorageKey(scope), JSON.stringify(payload));
 };
 
 export const clearLocalAppState = (scope?: LocalAppStateScope) => {
-  const storage = getSafeStorage('__routine_stars_local_app_state_test__');
+  const storage = getSafeStorage('__little_loops_local_app_state_test__');
   // Always clear the legacy key so older builds don't resurrect state.
   storage.removeItem(LOCAL_APP_STATE_STORAGE_KEY);
   storage.removeItem(`${LOCAL_APP_STATE_STORAGE_KEY}::anon`);

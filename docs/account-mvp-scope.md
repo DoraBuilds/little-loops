@@ -4,7 +4,7 @@
 
 Introduce parent accounts and cloud sync without breaking the current shared-device child experience.
 
-This phase is about making Routine Stars usable across devices and households, not about making children log in or turning the app into a full family-management platform.
+This phase is about making Little Loops usable across devices and households, not about making children log in or turning the app into a full family-management platform.
 
 ## Product Decision
 
@@ -73,7 +73,7 @@ That household contains:
 ### Parent with existing local data on this device
 
 1. Parent signs in.
-2. The app detects local `routine_stars_data`.
+2. The app detects local `little_loops_data`.
 3. The parent sees a clear import choice:
    - `Import this family setup`
    - `Start fresh instead`

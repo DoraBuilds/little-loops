@@ -209,7 +209,7 @@ Introduce parent authentication and cloud-backed households.
 
 Migrate local families into the cloud.
 
-- detect existing `routine_stars_data`
+- detect existing `little_loops_data`
 - prompt parent to import local setup after login
 - map existing local children/routines into normalized records
 - preserve old local data until import succeeds

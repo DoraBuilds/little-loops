@@ -1,4 +1,4 @@
-// Mascot system for Routine Stars — Cozy Pastel redesign
+// Mascot system for Little Loops — Cozy Pastel redesign
 
 export interface Mascot {
   id: string;
