@@ -65,9 +65,9 @@ const RoutineScreen = () => (
         <div style={{ fontSize: 11, fontWeight: 700, color: T.inkMute, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Good morning</div>
         <div style={{ fontSize: 17, fontWeight: 700, color: T.ink }}>Lily's routine</div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: T.orangeLight, borderRadius: 99, padding: '4px 9px' }}>
-        <StarSVG size={12} color={T.orange} />
-        <span style={{ fontSize: 12, fontWeight: 700, color: T.orange }}>🔥 5</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: '#fff1e8', borderRadius: 99, padding: '4px 9px' }}>
+        <StarSVG size={12} color="#f97316" />
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#f97316' }}>🔥 5</span>
       </div>
     </div>
     {[
@@ -87,7 +87,7 @@ const RoutineScreen = () => (
       }}>
         <div style={{
           width: 22, height: 22, borderRadius: 8, flexShrink: 0,
-          background: done ? T.orange : 'rgba(180,120,80,0.08)',
+          background: done ? '#f97316' : 'rgba(180,120,80,0.08)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           {done ? <span style={{ fontSize: 11 }}>✓</span> : null}
@@ -96,8 +96,8 @@ const RoutineScreen = () => (
         <span style={{ fontSize: 12, fontWeight: done ? 600 : 500, color: done ? T.inkMute : T.ink, textDecoration: done ? 'line-through' : 'none' }}>{label}</span>
       </div>
     ))}
-    <div style={{ marginTop: 10, background: T.orangeLight, borderRadius: 14, padding: '8px 12px', textAlign: 'center' }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: T.orange }}>4 tasks left · You've got this! ⭐</div>
+    <div style={{ marginTop: 10, background: '#fff1e8', borderRadius: 14, padding: '8px 12px', textAlign: 'center' }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#f97316' }}>4 tasks left · You've got this! ⭐</div>
     </div>
   </div>
 );
@@ -149,7 +149,7 @@ const MoodScreen = () => {
 const AffirmationScreen = () => (
   <div style={{ background: 'linear-gradient(160deg,#ecfdf5,#d1fae5)', minHeight: 420, padding: '20px 16px', fontFamily: T.fonts, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
     <div style={{ fontSize: 40, marginBottom: 12 }}>🐸</div>
-    <div style={{ fontSize: 11, fontWeight: 700, color: T.green, letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: 16 }}>Today's affirmation</div>
+    <div style={{ fontSize: 11, fontWeight: 700, color: '#047857', letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: 16 }}>Today's affirmation</div>
     <div style={{
       background: T.white, borderRadius: 22, padding: '22px 18px',
       boxShadow: '0 4px 20px rgba(4,120,87,0.12)',
@@ -161,10 +161,10 @@ const AffirmationScreen = () => (
     </div>
     <div style={{ display: 'flex', gap: 6 }}>
       {[0,1,2].map(i => (
-        <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: i === 1 ? T.green : 'rgba(4,120,87,0.20)' }} />
+        <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: i === 1 ? '#047857' : 'rgba(4,120,87,0.20)' }} />
       ))}
     </div>
-    <div style={{ marginTop: 24, fontSize: 12, fontWeight: 600, color: T.green, background: 'rgba(4,120,87,0.08)', borderRadius: 12, padding: '7px 14px' }}>
+    <div style={{ marginTop: 24, fontSize: 12, fontWeight: 600, color: '#047857', background: 'rgba(4,120,87,0.08)', borderRadius: 12, padding: '7px 14px' }}>
       ⭐ Routine complete!
     </div>
   </div>
@@ -173,10 +173,10 @@ const AffirmationScreen = () => (
 /* ── Screen: Achievement / streak ── */
 const AchievementScreen = () => (
   <div style={{ background: 'linear-gradient(160deg,#fdf2f8,#fce7f3)', minHeight: 420, padding: '16px 14px', fontFamily: T.fonts }}>
-    <div style={{ fontSize: 11, fontWeight: 700, color: T.pink, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Achievements</div>
+    <div style={{ fontSize: 11, fontWeight: 700, color: '#9d174d', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Achievements</div>
     <div style={{ fontSize: 17, fontWeight: 700, color: '#4a0026', marginBottom: 14 }}>Lily's stars</div>
     <div style={{ background: T.white, borderRadius: 18, padding: '14px 12px', marginBottom: 10, textAlign: 'center' }}>
-      <div style={{ fontSize: 32, fontWeight: 700, color: T.orange }}>🔥 12</div>
+      <div style={{ fontSize: 32, fontWeight: 700, color: '#f97316' }}>🔥 12</div>
       <div style={{ fontSize: 11, color: T.inkMute, marginTop: 2 }}>day streak — keep going!</div>
     </div>
     {[
@@ -204,7 +204,7 @@ const AchievementScreen = () => (
 
 /* ─── Section wrapper ────────────────────────────────────────────────── */
 const Section = ({ bg, children, style }: { bg?: string; children: React.ReactNode; style?: React.CSSProperties }) => (
-  <div style={{ background: bg ?? T.cream, width: '100%', padding: '80px 24px', position: 'relative', overflow: 'hidden', ...style }}>
+  <div style={{ background: bg ?? T.bg, width: '100%', padding: '80px 24px', position: 'relative', overflow: 'hidden', ...style }}>
     <div style={{ maxWidth: 1000, margin: '0 auto' }}>
       {children}
     </div>
