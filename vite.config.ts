@@ -21,7 +21,7 @@ const versionManifestPlugin = () => ({
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: process.env.GITHUB_ACTIONS ? "/little-loops/" : "/",
+  base: "/",
   server: {
     host: "::",
     port: 8080,
