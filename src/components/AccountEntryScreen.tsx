@@ -1,4 +1,4 @@
-import { ArrowLeft, Star } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { AccountSettingsCard } from './AccountSettingsCard';
 
 const T = {
@@ -58,15 +58,19 @@ export const AccountEntryScreen = ({ onBack }: Props) => (
 
     {/* Logo / wordmark */}
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 32, position: 'relative' }}>
-      <div style={{
-        width: 64, height: 64, borderRadius: 20, marginBottom: 14,
-        background: 'linear-gradient(135deg,#f97316,#fdba74)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: '0 6px 0 rgba(0,0,0,0.10), 0 12px 30px rgba(249,115,22,0.28)',
-      }}>
-        <Star size={30} color="#fff" fill="#fff" />
+      <svg width="64" height="64" viewBox="0 0 200 200" style={{ marginBottom: 14 }} aria-hidden="true">
+        <defs>
+          <linearGradient id="ll-acct-g" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#A693CC" />
+            <stop offset="1" stopColor="#8AAF98" />
+          </linearGradient>
+        </defs>
+        <path d="M100,28 C140,28 172,60 172,100 C172,144 136,172 100,172 C60,172 32,138 32,100 C32,66 58,44 88,47 C113,49.5 128,72 121,96 C116,113 98,120 88,110" fill="none" stroke="url(#ll-acct-g)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <div style={{ fontSize: 26, fontWeight: 700, fontFamily: `'Comfortaa', 'Fredoka', system-ui, sans-serif` }}>
+        <span style={{ color: '#3C3347' }}>Little</span>
+        <span style={{ color: '#866CB3' }}> Loops</span>
       </div>
-      <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.01em' }}>Little Loops</div>
       <div style={{ fontSize: 14, color: T.inkMute, marginTop: 4 }}>Parent account</div>
     </div>
 

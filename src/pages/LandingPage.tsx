@@ -1,34 +1,51 @@
 import { useEffect, useState } from 'react';
-import { ChevronRight, Star } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 /* ─── Brand tokens ───────────────────────────────────────────────────── */
 const T = {
-  fonts: `'Fredoka', system-ui, sans-serif`,
-  ink: '#1e1b4b',
-  inkMute: '#6b7280',
-  bg: '#f0f4ff',
-  bgDeep: '#e8edff',
+  fonts: `'Comfortaa', 'Fredoka', system-ui, sans-serif`,
+  ink: '#3C3347',
+  inkMute: '#988fa3',
+  bg: '#F3EDFA',
+  bgDeep: '#e8dff5',
   white: '#ffffff',
-  border: 'rgba(99,102,241,0.14)',
-  indigo: '#6366f1',
-  indigoDark: '#4f46e5',
-  indigoLight: '#eef2ff',
-  violet: '#8b5cf6',
-  violetLight: '#f5f3ff',
-  purple: '#a78bfa',
-  teal: '#0891b2',
-  tealLight: '#ecfeff',
-  rose: '#7c3aed',
-  roseLight: '#faf5ff',
-  shadow: '0 4px 24px rgba(99,102,241,0.14)',
+  cream: '#F9F7EF',
+  border: 'rgba(134,108,179,0.15)',
+  indigo: '#866CB3',
+  indigoDark: '#3C3347',
+  indigoLight: '#F3EDFA',
+  violet: '#8AAF98',
+  violetLight: '#eef5f0',
+  purple: '#618B73',
+  teal: '#618B73',
+  tealLight: '#eef5f0',
+  rose: '#A693CC',
+  roseLight: '#F3EDFA',
+  shadow: '0 4px 24px rgba(134,108,179,0.18)',
 };
 
 /* ─── Inline SVG helpers ─────────────────────────────────────────────── */
-const StarSVG = ({ size = 18, color = '#6366f1', style }: { size?: number; color?: string; style?: React.CSSProperties }) => (
+const StarSVG = ({ size = 18, color = '#866CB3', style }: { size?: number; color?: string; style?: React.CSSProperties }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" style={style} aria-hidden="true">
     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill={color} />
   </svg>
 );
+
+let _logoMarkId = 0;
+const LogoMark = ({ size = 32, style }: { size?: number; style?: React.CSSProperties }) => {
+  const id = `llg-${++_logoMarkId}`;
+  return (
+    <svg width={size} height={size} viewBox="0 0 200 200" style={style} aria-hidden="true">
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#A693CC" />
+          <stop offset="1" stopColor="#8AAF98" />
+        </linearGradient>
+      </defs>
+      <path d="M100,28 C140,28 172,60 172,100 C172,144 136,172 100,172 C60,172 32,138 32,100 C32,66 58,44 88,47 C113,49.5 128,72 121,96 C116,113 98,120 88,110" fill="none" stroke={`url(#${id})`} strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+};
 
 const BlobBg = ({ color, style }: { color: string; style?: React.CSSProperties }) => (
   <svg viewBox="0 0 500 450" style={{ position: 'absolute', pointerEvents: 'none', ...style }} aria-hidden="true">
@@ -252,7 +269,7 @@ export const LandingPage = ({ onGetStarted }: Props) => {
     borderRadius: 99, padding: large ? '18px 40px' : '13px 28px',
     fontSize: large ? 18 : 15, fontWeight: 700, cursor: 'pointer',
     fontFamily: T.fonts, letterSpacing: '0.01em',
-    boxShadow: `0 ${large ? 6 : 4}px 0 rgba(0,0,0,0.12), 0 ${large ? 16 : 10}px ${large ? 36 : 24}px rgba(99,102,241,0.30)`,
+    boxShadow: `0 ${large ? 6 : 4}px 0 rgba(0,0,0,0.12), 0 ${large ? 16 : 10}px ${large ? 36 : 24}px rgba(134,108,179,0.30)`,
     display: 'inline-flex', alignItems: 'center', gap: 8,
     transition: 'all 180ms ease',
   });
@@ -272,11 +289,12 @@ export const LandingPage = ({ onGetStarted }: Props) => {
         boxShadow: scrolled ? '0 4px 20px rgba(99,102,241,0.10)' : 'none',
         transition: 'all 220ms ease',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg,#6366f1,#818cf8)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(99,102,241,0.35)' }}>
-            <Star size={15} color="#fff" fill="#fff" />
-          </div>
-          <span style={{ fontSize: 17, fontWeight: 700 }}>Little Loops</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <LogoMark size={32} />
+          <span style={{ fontSize: 17, fontWeight: 700 }}>
+            <span style={{ color: T.ink }}>Little</span>
+            <span style={{ color: T.indigo }}> Loops</span>
+          </span>
         </div>
         <button style={btnPrimary()} onClick={onGetStarted}
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; }}
@@ -309,7 +327,7 @@ export const LandingPage = ({ onGetStarted }: Props) => {
             </p>
 
             <button style={btnPrimary(true)} onClick={onGetStarted}
-              onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-2px)'; b.style.boxShadow = '0 8px 0 rgba(0,0,0,0.12), 0 22px 44px rgba(99,102,241,0.40)'; }}
+              onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-2px)'; b.style.boxShadow = '0 8px 0 rgba(0,0,0,0.12), 0 22px 44px rgba(134,108,179,0.40)'; }}
               onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = ''; b.style.boxShadow = '0 6px 0 rgba(0,0,0,0.12), 0 16px 36px rgba(99,102,241,0.30)'; }}>
               Start your first routine
               <ChevronRight size={20} />
@@ -499,8 +517,8 @@ export const LandingPage = ({ onGetStarted }: Props) => {
       <Section style={{ textAlign: 'center', padding: '100px 24px' }}>
         <BlobBg color="rgba(99,102,241,0.09)" style={{ width: 480, top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 0 }} />
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 560, margin: '0 auto' }}>
-          <div style={{ width: 72, height: 72, borderRadius: 22, margin: '0 auto 24px', background: 'linear-gradient(135deg,#6366f1,#818cf8)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 0 rgba(0,0,0,0.10), 0 14px 36px rgba(99,102,241,0.32)' }}>
-            <Star size={34} color="#fff" fill="#fff" />
+          <div style={{ width: 72, height: 72, margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <LogoMark size={72} />
           </div>
           <h2 style={{ fontSize: 'clamp(28px, 4.5vw, 46px)', fontWeight: 700, margin: '0 0 16px', lineHeight: 1.15 }}>
             The mornings you've been dreaming of start tonight.
@@ -509,7 +527,7 @@ export const LandingPage = ({ onGetStarted }: Props) => {
             Set up tonight. Tomorrow morning, hand your child the tablet and watch what happens.
           </p>
           <button style={{ ...btnPrimary(true), margin: '0 auto' }} onClick={onGetStarted}
-            onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-2px)'; b.style.boxShadow = '0 8px 0 rgba(0,0,0,0.12), 0 22px 48px rgba(99,102,241,0.42)'; }}
+            onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-2px)'; b.style.boxShadow = '0 8px 0 rgba(0,0,0,0.12), 0 22px 48px rgba(134,108,179,0.42)'; }}
             onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = ''; b.style.boxShadow = '0 6px 0 rgba(0,0,0,0.12), 0 16px 36px rgba(99,102,241,0.30)'; }}>
             Create your account
             <ChevronRight size={20} />
@@ -521,10 +539,11 @@ export const LandingPage = ({ onGetStarted }: Props) => {
       {/* ══════════════════════════════════════════════════ FOOTER */}
       <div style={{ borderTop: `1.5px solid ${T.border}`, padding: '22px 24px', textAlign: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 6 }}>
-          <div style={{ width: 24, height: 24, borderRadius: 7, background: 'linear-gradient(135deg,#6366f1,#818cf8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Star size={12} color="#fff" fill="#fff" />
-          </div>
-          <span style={{ fontSize: 15, fontWeight: 700 }}>Little Loops</span>
+          <LogoMark size={24} />
+          <span style={{ fontSize: 15, fontWeight: 700 }}>
+            <span style={{ color: T.ink }}>Little</span>
+            <span style={{ color: T.indigo }}> Loops</span>
+          </span>
         </div>
         <p style={{ fontSize: 12, color: T.inkMute, margin: 0 }}>Made with love for families everywhere.</p>
       </div>
