@@ -15,6 +15,18 @@ interface KidHomeProps {
 const INK = '#3d2c1f';
 const INK_MUTE = '#8a7866';
 
+const LogoMark = ({ size = 28 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 200 200" aria-hidden="true">
+    <defs>
+      <linearGradient id="kh-llg" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stopColor="#A693CC" />
+        <stop offset="1" stopColor="#8AAF98" />
+      </linearGradient>
+    </defs>
+    <path d="M100,28 C140,28 172,60 172,100 C172,144 136,172 100,172 C60,172 32,138 32,100 C32,66 58,44 88,47 C113,49.5 128,72 121,96 C116,113 98,120 88,110" fill="none" stroke="url(#kh-llg)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 export const KidHome = ({ kids, theme, onPick, onParent }: KidHomeProps) => {
   const isMorning = theme === 'morning';
   const [holdPct, setHoldPct] = useState(0);
@@ -77,6 +89,13 @@ export const KidHome = ({ kids, theme, onPick, onParent }: KidHomeProps) => {
       >
         {/* Header — centred */}
         <div style={{ marginBottom: 24, flexShrink: 0, textAlign: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginBottom: 10 }}>
+            <LogoMark size={22} />
+            <span style={{ fontSize: 14, fontWeight: 700, color: isMorning ? INK : '#fff', fontFamily: `'Comfortaa', 'Fredoka', system-ui, sans-serif`, letterSpacing: '0.01em' }}>
+              <span>Little</span>
+              <span style={{ color: '#A693CC' }}> Loops</span>
+            </span>
+          </div>
           <div
             style={{
               fontSize: 18,

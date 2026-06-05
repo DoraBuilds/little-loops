@@ -12,6 +12,18 @@ import type { Child, HomeScene, RoutineType } from '@/lib/types';
 import { AGE_BUCKETS, groupTasksByAge, ICON_OPTIONS, TASK_CATALOG } from '@/lib/types';
 import type { TaskCatalogItem } from '@/lib/task-catalog';
 
+const LogoMark = ({ size = 24 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 200 200" aria-hidden="true">
+    <defs>
+      <linearGradient id="ps-llg" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stopColor="#A693CC" />
+        <stop offset="1" stopColor="#8AAF98" />
+      </linearGradient>
+    </defs>
+    <path d="M100,28 C140,28 172,60 172,100 C172,144 136,172 100,172 C60,172 32,138 32,100 C32,66 58,44 88,47 C113,49.5 128,72 121,96 C116,113 98,120 88,110" fill="none" stroke="url(#ps-llg)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 // ── Design tokens ──────────────────────────────────────────
 const T = {
   fonts: `'Fredoka', system-ui, sans-serif`,
@@ -438,6 +450,12 @@ export const ParentSettings = ({
               ‹
             </button>
             <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 2 }}>
+                <LogoMark size={20} />
+                <span style={{ fontSize: 13, fontWeight: 700, fontFamily: `'Comfortaa', 'Fredoka', system-ui, sans-serif`, color: T.ink, letterSpacing: '0.01em' }}>
+                  Little<span style={{ color: '#866CB3' }}> Loops</span>
+                </span>
+              </div>
               <div style={{ fontSize: 20, fontWeight: 700 }}>Parent Settings</div>
               <div style={{ fontSize: 15, color: T.inkMute }}>Manage children and their daily routines.</div>
             </div>
