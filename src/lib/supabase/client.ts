@@ -73,7 +73,13 @@ export const finalizeSupabaseAuthFromUrl = async (url = window.location.href) =>
     if (code) {
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (error) {
-        return { handled: true, error: error.message };
+        const isVerifierMissing = 'name' in error && error.name === 'AuthPKCECodeVerifierMissingError';
+        return {
+          handled: true,
+          error: isVerifierMissing
+            ? 'This sign-in link must be opened in the same browser you used to request it. Please request a new sign-in link.'
+            : error.message,
+        };
       }
 
       // Clear auth params from the URL for privacy and to avoid re-processing on refresh.
@@ -129,6 +135,11 @@ export const getSupabaseClient = () => {
         persistSession: true,
         autoRefreshToken: true,
         storage: createSupabaseAuthStorage(),
+        // PKCE puts the auth code in query params (?code=xxx) instead of the URL
+        // hash (#access_token=xxx). Email clients and mobile WebViews routinely
+        // strip hash fragments before following links, which left new users on
+        // a spinner that never resolved. Query params survive every email client.
+        flowType: 'pkce',
       },
     });
   }
