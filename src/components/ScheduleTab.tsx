@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { PainterlyBanner } from './PainterlyBanner';
 import { getMascot } from '@/lib/mascots';
 import { cloneSummerSchedule, DEFAULT_SUMMER_SCHEDULE, getTodaySummerDay, loadSummerSchedule, saveSummerSchedule, SUMMER_DAYS, timeToMinutes, type SummerDay, type SummerSchedule, type SummerScheduleItem } from '@/lib/summer-schedule';
@@ -54,5 +54,5 @@ export const ScheduleTab=({kid}:ScheduleTabProps)=>{
   </div>;
 };
 
-const inputStyle:React.CSSProperties={width:'100%',boxSizing:'border-box',border:'1.5px solid rgba(14,165,233,.16)',borderRadius:10,padding:'8px 9px',fontFamily:"'Fredoka',system-ui,sans-serif",color:INK,background:'#fff'};
-const buttonStyle=(background:string,color='#fff'):React.CSSProperties=>({border:'none',background,color,borderRadius:12,padding:'9px 12px',fontFamily:"'Fredoka',system-ui,sans-serif",fontSize:12,fontWeight:800,cursor:'pointer'});
+const inputStyle:CSSProperties={width:'100%',boxSizing:'border-box',border:'1.5px solid rgba(14,165,233,.16)',borderRadius:10,padding:'8px 9px',fontFamily:"'Fredoka',system-ui,sans-serif",color:INK,background:'#fff'};
+const buttonStyle=(background:string,color='#fff'):CSSProperties=>({border:'none',background,color,borderRadius:12,padding:'9px 12px',fontFamily:"'Fredoka',system-ui,sans-serif",fontSize:12,fontWeight:800,cursor:'pointer'});
