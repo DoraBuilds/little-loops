@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { MascotBubble } from './MascotBubble';
 import { BottomNav, type KidTab } from './BottomNav';
 import { RoutinesTab } from './RoutinesTab';
+import { ScheduleTab } from './ScheduleTab';
 import { AffirmationsTab } from './AffirmationsTab';
 import { AchievementsTab } from './AchievementsTab';
 import { MoodTab } from './MoodTab';
@@ -29,7 +30,6 @@ const CATEGORIES: {
   label: string;
   desc: string;
   bg: string;
-  bgNight: string;
 }[] = [
   {
     id: 'routines',
@@ -37,7 +37,13 @@ const CATEGORIES: {
     label: 'Routines',
     desc: 'Your daily tasks',
     bg: 'linear-gradient(145deg,#4338ca,#818cf8)',
-    bgNight: 'linear-gradient(145deg,#4338ca,#818cf8)',
+  },
+  {
+    id: 'schedule',
+    emoji: '📅',
+    label: 'Schedule',
+    desc: "What's happening today?",
+    bg: 'linear-gradient(145deg,#0284c7,#38bdf8)',
   },
   {
     id: 'affirmations',
@@ -45,7 +51,6 @@ const CATEGORIES: {
     label: 'Affirmations',
     desc: 'You are amazing!',
     bg: 'linear-gradient(145deg,#c2410c,#fdba74)',
-    bgNight: 'linear-gradient(145deg,#c2410c,#fdba74)',
   },
   {
     id: 'achievements',
@@ -53,7 +58,6 @@ const CATEGORIES: {
     label: 'Awards',
     desc: 'Badges & streaks',
     bg: 'linear-gradient(145deg,#047857,#6ee7b7)',
-    bgNight: 'linear-gradient(145deg,#047857,#6ee7b7)',
   },
   {
     id: 'mood',
@@ -61,14 +65,22 @@ const CATEGORIES: {
     label: 'Mood',
     desc: 'How do you feel?',
     bg: 'linear-gradient(145deg,#9d174d,#fda4af)',
-    bgNight: 'linear-gradient(145deg,#9d174d,#fda4af)',
   },
 ];
 
-export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote, onAddAffirmation, onRemoveAffirmation }: KidAppProps) => {
+export const KidApp = ({
+  kid,
+  theme,
+  onBack,
+  onToggleTask,
+  onSetMood,
+  onSaveNote,
+  onAddAffirmation,
+  onRemoveAffirmation,
+}: KidAppProps) => {
   const [view, setView] = useState<KidView>('hub');
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
-  const m = getMascot(kid.mascotId ?? kid.avatarAnimal);
+  const mascot = getMascot(kid.mascotId ?? kid.avatarAnimal);
   const streak = kid.streak ?? 0;
   const isNight = theme === 'evening';
 
@@ -78,7 +90,6 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // ── Hub (category picker) ──────────────────────────────────────────────────
   if (view === 'hub') {
     return (
       <div
@@ -91,10 +102,8 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
           fontFamily: "'Fredoka', system-ui, sans-serif",
         }}
       >
-        {/* Full-viewport backdrop */}
         {isNight ? <NightBackdrop /> : <MorningBackdrop />}
 
-        {/* Centred card */}
         <div
           style={{
             position: 'relative',
@@ -108,18 +117,19 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
             overflow: 'hidden',
           }}
         >
-          {/* Top bar */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 12,
-              marginBottom: 24,
+              marginBottom: 18,
               flexShrink: 0,
             }}
           >
             <button
+              type="button"
               onClick={onBack}
+              aria-label="Back"
               style={{
                 width: 38,
                 height: 38,
@@ -135,7 +145,6 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
                 cursor: 'pointer',
                 boxShadow: isNight ? 'none' : '0 2px 8px rgba(180,120,80,0.12)',
                 fontFamily: 'inherit',
-                WebkitTapHighlightColor: 'transparent',
               }}
             >
               ‹
@@ -146,7 +155,7 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
             <div style={{ flex: 1 }}>
               <div
                 style={{
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: 600,
                   color: isNight ? 'rgba(255,255,255,0.55)' : '#8a7866',
                   letterSpacing: '0.08em',
@@ -157,14 +166,14 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
               </div>
               <div
                 style={{
-                  fontSize: 32,
+                  fontSize: 29,
                   fontWeight: 700,
                   color: isNight ? '#fff' : '#3d2c1f',
                   lineHeight: 1.1,
                   marginTop: 2,
                 }}
               >
-                {kid.name}! {m.emoji}
+                {kid.name}! {mascot.emoji}
               </div>
             </div>
 
@@ -172,15 +181,11 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
               <div
                 style={{
                   background: isNight ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.9)',
-                  backdropFilter: 'blur(8px)',
                   borderRadius: 12,
                   padding: '6px 12px',
                   fontSize: 13,
                   fontWeight: 700,
                   color: '#f97316',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
                 }}
               >
                 🔥 {streak}
@@ -188,25 +193,29 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
             )}
           </div>
 
-          {/* 2×2 category grid — rows sized naturally, not stretched */}
           <div
             style={{
               flex: 1,
               display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gridAutoRows: 'minmax(160px, 220px)',
-              gap: 14,
-              alignContent: 'center',
+              gridTemplateColumns: 'repeat(2,minmax(0,1fr))',
+              gridAutoRows: 'minmax(135px,1fr)',
+              gap: 12,
               overflowY: 'auto',
+              alignContent: 'center',
+              paddingBottom: 2,
             }}
           >
-            {CATEGORIES.map((cat) => (
+            {CATEGORIES.map((category, index) => (
               <button
-                key={cat.id}
-                onClick={() => setView(cat.id)}
+                key={category.id}
+                type="button"
+                onClick={() => setView(category.id)}
                 style={{
-                  background: isNight ? cat.bgNight : cat.bg,
-                  borderRadius: 28,
+                  gridColumn: CATEGORIES.length % 2 === 1 && index === CATEGORIES.length - 1 ? '1 / -1' : undefined,
+                  width: CATEGORIES.length % 2 === 1 && index === CATEGORIES.length - 1 ? 'calc(50% - 6px)' : undefined,
+                  justifySelf: CATEGORIES.length % 2 === 1 && index === CATEGORIES.length - 1 ? 'center' : undefined,
+                  background: category.bg,
+                  borderRadius: 26,
                   border: 'none',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
@@ -215,53 +224,30 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: 8,
-                  padding: '16px 12px',
-                  boxShadow: isNight
-                    ? '0 8px 24px rgba(0,0,0,0.4)'
-                    : '0 8px 24px rgba(0,0,0,0.15)',
+                  gap: 6,
+                  padding: '14px 10px',
+                  boxShadow: isNight ? '0 8px 24px rgba(0,0,0,0.4)' : '0 8px 24px rgba(0,0,0,0.15)',
                   WebkitTapHighlightColor: 'transparent',
-                  transition: 'transform 0.12s, box-shadow 0.12s',
                   position: 'relative',
                   overflow: 'hidden',
                 }}
               >
-                {/* Subtle shine */}
                 <div
                   style={{
                     position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
+                    inset: '0 0 auto',
                     height: '50%',
                     background: 'rgba(255,255,255,0.12)',
-                    borderRadius: '28px 28px 60% 60%',
+                    borderRadius: '26px 26px 60% 60%',
                     pointerEvents: 'none',
                   }}
                 />
-                <div style={{ fontSize: 56, lineHeight: 1, position: 'relative' }}>
-                  {cat.emoji}
+                <div style={{ fontSize: 45, lineHeight: 1, position: 'relative' }}>{category.emoji}</div>
+                <div style={{ fontSize: 21, fontWeight: 700, textAlign: 'center', position: 'relative' }}>
+                  {category.label}
                 </div>
-                <div
-                  style={{
-                    fontSize: 24,
-                    fontWeight: 700,
-                    textAlign: 'center',
-                    lineHeight: 1.2,
-                    position: 'relative',
-                  }}
-                >
-                  {cat.label}
-                </div>
-                <div
-                  style={{
-                    fontSize: 16,
-                    opacity: 0.8,
-                    textAlign: 'center',
-                    position: 'relative',
-                  }}
-                >
-                  {cat.desc}
+                <div style={{ fontSize: 13, opacity: 0.82, textAlign: 'center', position: 'relative' }}>
+                  {category.desc}
                 </div>
               </button>
             ))}
@@ -271,7 +257,6 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
     );
   }
 
-  // ── Tab view ───────────────────────────────────────────────────────────────
   return (
     <div
       style={{
@@ -283,7 +268,6 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
         fontFamily: "'Fredoka', system-ui, sans-serif",
       }}
     >
-      {/* Centred content card */}
       <div
         style={{
           width: '100%',
@@ -292,12 +276,9 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          boxShadow: isNight
-            ? '0 0 60px rgba(0,0,0,0.4)'
-            : '0 0 60px rgba(180,120,80,0.12)',
+          boxShadow: isNight ? '0 0 60px rgba(0,0,0,0.4)' : '0 0 60px rgba(180,120,80,0.12)',
         }}
       >
-        {/* Top bar */}
         <div
           style={{
             display: 'flex',
@@ -305,15 +286,15 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
             gap: 10,
             padding: isMobile ? '8px 12px' : '10px 14px',
             background: isNight ? 'rgba(44,38,120,0.97)' : 'rgba(255,249,240,0.95)',
-            backdropFilter: 'blur(8px)',
             borderBottom: `1px solid ${isNight ? 'rgba(255,255,255,0.06)' : 'rgba(180,120,80,0.07)'}`,
-            position: 'relative',
-            zIndex: 10,
             flexShrink: 0,
+            zIndex: 10,
           }}
         >
           <button
+            type="button"
             onClick={() => setView('hub')}
+            aria-label="Back to sections"
             style={{
               width: isMobile ? 40 : 34,
               height: isMobile ? 40 : 34,
@@ -326,9 +307,7 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
               color: isNight ? '#fff' : '#3d2c1f',
               border: 'none',
               cursor: 'pointer',
-              boxShadow: isNight ? 'none' : '0 2px 6px rgba(180,120,80,0.1)',
               fontFamily: 'inherit',
-              WebkitTapHighlightColor: 'transparent',
             }}
           >
             ‹
@@ -337,70 +316,35 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
           <div style={{ flex: 1 }}>
             <div
               style={{
-                fontSize: isMobile ? 13 : 16,
+                fontSize: isMobile ? 12 : 14,
                 fontWeight: 700,
                 color: isNight ? 'rgba(255,255,255,0.45)' : '#8a7866',
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
               }}
             >
-              with {m.name}
+              with {mascot.name}
             </div>
-            <div
-              style={{
-                fontSize: isMobile ? 18 : 22,
-                fontWeight: 700,
-                color: isNight ? '#fff' : '#3d2c1f',
-                marginTop: 1,
-              }}
-            >
+            <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: isNight ? '#fff' : '#3d2c1f' }}>
               Hi, {kid.name}!
             </div>
           </div>
           {streak > 0 && (
-            <div
-              style={{
-                background: isNight ? 'rgba(255,255,255,0.1)' : '#fff',
-                borderRadius: 10,
-                padding: '5px 10px',
-                fontSize: isMobile ? 14 : 11,
-                fontWeight: 700,
-                color: '#f97316',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-                boxShadow: isNight ? 'none' : '0 2px 6px rgba(180,120,80,0.08)',
-              }}
-            >
+            <div style={{ borderRadius: 10, padding: '5px 10px', fontSize: 12, fontWeight: 700, color: '#f97316' }}>
               🔥 {streak}
             </div>
           )}
         </div>
 
-        {/* Tab content + nav — column on mobile (content above, nav below),
-            row on tablet (sidebar left, content right) */}
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          overflow: 'hidden',
-        }}>
-          {/* Side nav — tablet only */}
-          {!isMobile && (
-            <BottomNav active={view as KidTab} onChange={setView} theme={theme} placement="side" />
-          )}
+        <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', overflow: 'hidden' }}>
+          {!isMobile && <BottomNav active={view} onChange={setView} theme={theme} placement="side" />}
 
-          {/* Tab content */}
           <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', inset: 0 }}>
               {view === 'routines' && (
-                <RoutinesTab
-                  kid={kid}
-                  theme={theme}
-                  onToggleTask={onToggleTask}
-                  onAllDone={onBack}
-                />
+                <RoutinesTab kid={kid} theme={theme} onToggleTask={onToggleTask} onAllDone={onBack} />
               )}
+              {view === 'schedule' && <ScheduleTab kid={kid} />}
               {view === 'affirmations' && (
                 <AffirmationsTab
                   kid={kid}
@@ -413,10 +357,7 @@ export const KidApp = ({ kid, theme, onBack, onToggleTask, onSetMood, onSaveNote
             </div>
           </div>
 
-          {/* Bottom nav — mobile only */}
-          {isMobile && (
-            <BottomNav active={view as KidTab} onChange={setView} theme={theme} placement="bottom" />
-          )}
+          {isMobile && <BottomNav active={view} onChange={setView} theme={theme} placement="bottom" />}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-export type KidTab = 'routines' | 'affirmations' | 'achievements' | 'mood';
+export type KidTab = 'routines' | 'schedule' | 'affirmations' | 'achievements' | 'mood';
 
 interface BottomNavProps {
   active: KidTab;
@@ -8,15 +8,16 @@ interface BottomNavProps {
 }
 
 const TABS: { id: KidTab; icon: string; label: string; tint: string }[] = [
-  { id: 'routines',     icon: '📋', label: 'Routines', tint: '#f97316' },
-  { id: 'affirmations', icon: '💫', label: 'Affirm.',  tint: '#ec4899' },
-  { id: 'achievements', icon: '🏆', label: 'Awards',   tint: '#f59e0b' },
-  { id: 'mood',         icon: '😌', label: 'Mood',     tint: '#a855f7' },
+  { id: 'routines', icon: '📋', label: 'Routines', tint: '#f97316' },
+  { id: 'schedule', icon: '📅', label: 'Schedule', tint: '#0ea5e9' },
+  { id: 'affirmations', icon: '💫', label: 'Affirm.', tint: '#ec4899' },
+  { id: 'achievements', icon: '🏆', label: 'Awards', tint: '#f59e0b' },
+  { id: 'mood', icon: '😌', label: 'Mood', tint: '#a855f7' },
 ];
 
 export const BottomNav = ({ active, onChange, theme = 'morning', placement = 'side' }: BottomNavProps) => {
   const isNight = theme === 'evening';
-  const activeTint = TABS.find((t) => t.id === active)?.tint ?? '#f97316';
+  const activeTint = TABS.find((tab) => tab.id === active)?.tint ?? '#f97316';
   const isBottom = placement === 'bottom';
 
   if (isBottom) {
@@ -30,27 +31,30 @@ export const BottomNav = ({ active, onChange, theme = 'morning', placement = 'si
           backdropFilter: 'blur(12px)',
           borderTop: `1px solid ${isNight ? 'rgba(255,255,255,0.07)' : 'rgba(180,120,80,0.08)'}`,
           display: 'flex',
-          flexDirection: 'row',
           alignItems: 'stretch',
           zIndex: 30,
           fontFamily: "'Fredoka', system-ui, sans-serif",
         }}
       >
-        {TABS.map((t) => (
+        {TABS.map((tab) => (
           <button
-            key={t.id}
-            onClick={() => onChange(t.id)}
+            key={tab.id}
+            type="button"
+            aria-label={tab.label}
+            aria-pressed={tab.id === active}
+            onClick={() => onChange(tab.id)}
             style={{
               flex: 1,
+              minWidth: 0,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
               gap: 4,
-              padding: '8px 4px',
-              background: t.id === active ? `${activeTint}18` : 'transparent',
+              padding: '8px 2px',
+              background: tab.id === active ? `${activeTint}18` : 'transparent',
               border: 'none',
-              borderTop: t.id === active ? `3px solid ${activeTint}` : '3px solid transparent',
+              borderTop: tab.id === active ? `3px solid ${activeTint}` : '3px solid transparent',
               cursor: 'pointer',
               fontFamily: 'inherit',
               WebkitTapHighlightColor: 'transparent',
@@ -59,14 +63,14 @@ export const BottomNav = ({ active, onChange, theme = 'morning', placement = 'si
           >
             <div
               style={{
-                fontSize: 32,
+                fontSize: 29,
                 lineHeight: 1,
-                filter: t.id === active ? 'none' : 'grayscale(0.5)',
-                opacity: t.id === active ? 1 : isNight ? 0.4 : 0.5,
+                filter: tab.id === active ? 'none' : 'grayscale(0.5)',
+                opacity: tab.id === active ? 1 : isNight ? 0.4 : 0.5,
                 transition: 'all 0.2s',
               }}
             >
-              {t.icon}
+              {tab.icon}
             </div>
           </button>
         ))}
@@ -74,7 +78,6 @@ export const BottomNav = ({ active, onChange, theme = 'morning', placement = 'si
     );
   }
 
-  // Side placement (tablet / desktop)
   return (
     <div
       style={{
@@ -87,25 +90,28 @@ export const BottomNav = ({ active, onChange, theme = 'morning', placement = 'si
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 4,
-        padding: '16px 8px',
+        gap: 2,
+        padding: '10px 8px',
         zIndex: 30,
         fontFamily: "'Fredoka', system-ui, sans-serif",
+        overflowY: 'auto',
       }}
     >
-      {TABS.map((t) => (
+      {TABS.map((tab) => (
         <button
-          key={t.id}
-          onClick={() => onChange(t.id)}
+          key={tab.id}
+          type="button"
+          aria-pressed={tab.id === active}
+          onClick={() => onChange(tab.id)}
           style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 8,
-            padding: '16px 10px',
-            borderRadius: 24,
+            gap: 5,
+            padding: '10px',
+            borderRadius: 20,
             width: 144,
-            background: t.id === active ? `${activeTint}22` : 'transparent',
+            background: tab.id === active ? `${activeTint}22` : 'transparent',
             border: 'none',
             cursor: 'pointer',
             fontFamily: 'inherit',
@@ -115,25 +121,24 @@ export const BottomNav = ({ active, onChange, theme = 'morning', placement = 'si
         >
           <div
             style={{
-              fontSize: 52,
+              fontSize: 40,
               lineHeight: 1,
-              filter: t.id === active ? 'none' : 'grayscale(0.6)',
-              opacity: t.id === active ? 1 : isNight ? 0.4 : 0.45,
+              filter: tab.id === active ? 'none' : 'grayscale(0.6)',
+              opacity: tab.id === active ? 1 : isNight ? 0.4 : 0.45,
               transition: 'all 0.2s',
             }}
           >
-            {t.icon}
+            {tab.icon}
           </div>
           <div
             style={{
-              fontSize: 18,
+              fontSize: 15,
               fontWeight: 700,
-              letterSpacing: '0.02em',
-              color: t.id === active ? activeTint : isNight ? 'rgba(255,255,255,0.45)' : '#8a7866',
+              color: tab.id === active ? activeTint : isNight ? 'rgba(255,255,255,0.45)' : '#8a7866',
               transition: 'color 0.2s',
             }}
           >
-            {t.label}
+            {tab.label}
           </div>
         </button>
       ))}
