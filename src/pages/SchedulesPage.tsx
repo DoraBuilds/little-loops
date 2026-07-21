@@ -60,6 +60,7 @@ export default function SchedulesPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState<ScheduleDay>('Monday');
   const [copyTarget, setCopyTarget] = useState<ScheduleDay>('Tuesday');
+  const [taskCopyTargets, setTaskCopyTargets] = useState<Record<string, ScheduleDay>>({});
   const [status, setStatus] = useState<'loading' | 'idle' | 'saving' | 'saved' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
   const [childWarning, setChildWarning] = useState<string | null>(null);
@@ -90,43 +91,34 @@ export default function SchedulesPage() {
     const scheduleRepo = new SupabaseScheduleRepository(supabase);
     const childRepo = new SupabaseChildProfileRepository(supabase);
 
-    void scheduleRepo
-      .load(household.id)
-      .then((loaded) => {
-        if (cancelled) return;
-        setSchedules(loaded);
-        setSelectedId(loaded[0]?.id ?? null);
-        setStatus('idle');
-      })
-      .catch((loadError) => {
-        if (cancelled) return;
-        console.error('Could not load schedules', loadError);
-        setError(errorMessage(loadError));
-        setStatus('error');
-      });
+    void scheduleRepo.load(household.id).then((loaded) => {
+      if (cancelled) return;
+      setSchedules(loaded);
+      setSelectedId(loaded[0]?.id ?? null);
+      setStatus('idle');
+    }).catch((loadError) => {
+      if (cancelled) return;
+      console.error('Could not load schedules', loadError);
+      setError(errorMessage(loadError));
+      setStatus('error');
+    });
 
-    void childRepo
-      .listByHousehold(household.id)
-      .then((profiles) => {
-        if (cancelled) return;
-        setChildren(profiles.map((child) => ({ id: child.id, name: child.name })));
-      })
-      .catch((childError) => {
-        if (cancelled) return;
-        console.error('Could not load child profiles for schedules', childError);
-        setChildWarning(
-          `Schedules loaded, but child assignments are temporarily unavailable: ${errorMessage(childError)}`
-        );
-      });
+    void childRepo.listByHousehold(household.id).then((profiles) => {
+      if (cancelled) return;
+      setChildren(profiles.map((child) => ({ id: child.id, name: child.name })));
+    }).catch((childError) => {
+      if (cancelled) return;
+      console.error('Could not load child profiles for schedules', childError);
+      setChildWarning(`Schedules loaded, but child assignments are temporarily unavailable: ${errorMessage(childError)}`);
+    });
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [authStatus, household, householdStatus]);
 
   useEffect(() => {
     const next = SCHEDULE_DAYS.find((day) => day !== selectedDay) ?? 'Monday';
     setCopyTarget(next);
+    setTaskCopyTargets({});
   }, [selectedDay]);
 
   const updatePlan = (patch: Partial<SchedulePlan>) =>
@@ -153,18 +145,24 @@ export default function SchedulesPage() {
 
   const copyDay = () => {
     if (!selected || copyTarget === selectedDay) return;
-    const copied = (selected.days[selectedDay] ?? []).map((item) => ({
-      ...item,
-      id: crypto.randomUUID(),
-    }));
+    const copied = (selected.days[selectedDay] ?? []).map((item) => ({ ...item, id: crypto.randomUUID() }));
     updatePlan({ days: { ...selected.days, [copyTarget]: copied } });
     setSelectedDay(copyTarget);
+  };
+
+  const copyTask = (entry: ScheduleItem) => {
+    if (!selected) return;
+    const target = taskCopyTargets[entry.id] ?? SCHEDULE_DAYS.find((day) => day !== selectedDay) ?? 'Monday';
+    if (target === selectedDay) return;
+    const copied = { ...entry, id: crypto.randomUUID() };
+    const targetItems = [...(selected.days[target] ?? []), copied]
+      .sort((left, right) => timeToMinutes(left.time) - timeToMinutes(right.time));
+    updatePlan({ days: { ...selected.days, [target]: targetItems } });
   };
 
   const save = async () => {
     const supabase = getSupabaseClient();
     if (!household || !supabase) return;
-
     setStatus('saving');
     setError(null);
 
@@ -197,27 +195,15 @@ export default function SchedulesPage() {
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 18, marginBottom: 28, flexWrap: 'wrap' }}>
           <div>
-            <button onClick={() => navigate('/')} style={{ ...button('#fff', ink), border: '2px solid rgba(0,0,0,.08)', marginBottom: 16 }}>
-              ← Back
-            </button>
-            <div style={{ fontSize: 18, fontWeight: 800, color: blue, textTransform: 'uppercase', letterSpacing: '.12em' }}>
-              Parent settings
-            </div>
+            <button onClick={() => navigate('/')} style={{ ...button('#fff', ink), border: '2px solid rgba(0,0,0,.08)', marginBottom: 16 }}>← Back</button>
+            <div style={{ fontSize: 18, fontWeight: 800, color: blue, textTransform: 'uppercase', letterSpacing: '.12em' }}>Parent settings</div>
             <h1 style={{ margin: '6px 0 0', fontSize: 52, lineHeight: 1.05 }}>Schedules</h1>
-            <p style={{ margin: '12px 0 0', color: mute, fontSize: 22, lineHeight: 1.4 }}>
-              Create reusable plans, assign them to children, and choose which one is active.
-            </p>
+            <p style={{ margin: '12px 0 0', color: mute, fontSize: 22, lineHeight: 1.4 }}>Create reusable plans, assign them to children, and choose which one is active.</p>
           </div>
-          <button onClick={createPlan} disabled={createDisabled} style={{ ...button(blue), opacity: createDisabled ? 0.55 : 1 }}>
-            + Create schedule
-          </button>
+          <button onClick={createPlan} disabled={createDisabled} style={{ ...button(blue), opacity: createDisabled ? 0.55 : 1 }}>+ Create schedule</button>
         </div>
 
-        {childWarning && (
-          <div style={{ padding: 18, borderRadius: 18, background: '#fef3c7', color: '#92400e', marginBottom: 18, fontSize: 18 }}>
-            {childWarning}
-          </div>
-        )}
+        {childWarning && <div style={{ padding: 18, borderRadius: 18, background: '#fef3c7', color: '#92400e', marginBottom: 18, fontSize: 18 }}>{childWarning}</div>}
 
         {status === 'loading' ? (
           <div style={{ fontSize: 22 }}>Loading…</div>
@@ -225,46 +211,22 @@ export default function SchedulesPage() {
           <div style={{ padding: 22, borderRadius: 18, background: '#fee2e2', color: '#b91c1c', fontSize: 20 }}>
             <strong>Could not load or save schedules.</strong>
             <div style={{ marginTop: 8, fontSize: 18 }}>{error}</div>
-            <button onClick={() => window.location.reload()} style={{ ...button('#fff', '#b91c1c'), marginTop: 16 }}>
-              Try again
-            </button>
+            <button onClick={() => window.location.reload()} style={{ ...button('#fff', '#b91c1c'), marginTop: 16 }}>Try again</button>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(260px,320px) minmax(0,1fr)', gap: 22 }}>
             <aside style={{ background: '#fff', borderRadius: 26, padding: 18, border: '2px solid rgba(0,0,0,.07)', height: 'fit-content' }}>
-              {schedules.length === 0 ? (
-                <div style={{ padding: 18, color: mute, fontSize: 20 }}>No schedules yet.</div>
-              ) : (
-                schedules.map((schedule) => (
-                  <button
-                    key={schedule.id}
-                    onClick={() => setSelectedId(schedule.id)}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: 16,
-                      marginBottom: 10,
-                      borderRadius: 18,
-                      border: schedule.id === selectedId ? `3px solid ${blue}` : '2px solid rgba(0,0,0,.07)',
-                      background: schedule.id === selectedId ? '#e0f2fe' : '#fff',
-                      fontFamily: font,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <div style={{ fontWeight: 800, fontSize: 22 }}>{schedule.name}</div>
-                    <div style={{ fontSize: 17, color: mute, marginTop: 5 }}>
-                      {schedule.active ? 'Active' : 'Inactive'} · {schedule.childIds.length === 0 ? 'All children' : `${schedule.childIds.length} assigned`}
-                    </div>
-                  </button>
-                ))
-              )}
+              {schedules.length === 0 ? <div style={{ padding: 18, color: mute, fontSize: 20 }}>No schedules yet.</div> : schedules.map((schedule) => (
+                <button key={schedule.id} onClick={() => setSelectedId(schedule.id)} style={{ width: '100%', textAlign: 'left', padding: 16, marginBottom: 10, borderRadius: 18, border: schedule.id === selectedId ? `3px solid ${blue}` : '2px solid rgba(0,0,0,.07)', background: schedule.id === selectedId ? '#e0f2fe' : '#fff', fontFamily: font, cursor: 'pointer' }}>
+                  <div style={{ fontWeight: 800, fontSize: 22 }}>{schedule.name}</div>
+                  <div style={{ fontSize: 17, color: mute, marginTop: 5 }}>{schedule.active ? 'Active' : 'Inactive'} · {schedule.childIds.length === 0 ? 'All children' : `${schedule.childIds.length} assigned`}</div>
+                </button>
+              ))}
             </aside>
 
             <main>
               {!selected ? (
-                <div style={{ background: '#fff', borderRadius: 26, padding: 36, textAlign: 'center', color: mute, fontSize: 22 }}>
-                  Create or select a schedule.
-                </div>
+                <div style={{ background: '#fff', borderRadius: 26, padding: 36, textAlign: 'center', color: mute, fontSize: 22 }}>Create or select a schedule.</div>
               ) : (
                 <div style={{ background: '#fff', borderRadius: 26, padding: 24, border: '2px solid rgba(0,0,0,.07)' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'start' }}>
@@ -273,21 +235,7 @@ export default function SchedulesPage() {
                       <input value={selected.description ?? ''} onChange={(event) => updatePlan({ description: event.target.value })} placeholder="Description" style={{ ...input, marginTop: 10 }} />
                     </div>
                     <label style={{ display: 'flex', gap: 10, alignItems: 'center', fontWeight: 800, fontSize: 20 }}>
-                      <input
-                        type="checkbox"
-                        checked={selected.active}
-                        onChange={(event) => {
-                          const checked = event.target.checked;
-                          setSchedules((previous) =>
-                            previous.map((schedule) => ({
-                              ...schedule,
-                              active: schedule.id === selected.id ? checked : checked ? false : schedule.active,
-                            }))
-                          );
-                        }}
-                        style={{ width: 24, height: 24 }}
-                      />
-                      Active
+                      <input type="checkbox" checked={selected.active} onChange={(event) => { const checked = event.target.checked; setSchedules((previous) => previous.map((schedule) => ({ ...schedule, active: schedule.id === selected.id ? checked : checked ? false : schedule.active }))); }} style={{ width: 24, height: 24 }} /> Active
                     </label>
                   </div>
 
@@ -295,18 +243,7 @@ export default function SchedulesPage() {
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 10 }}>
                     {children.map((child) => (
                       <label key={child.id} style={{ padding: '11px 15px', borderRadius: 99, background: selected.childIds.includes(child.id) ? '#e0f2fe' : '#f5ede2', cursor: 'pointer', fontSize: 19, fontWeight: 700 }}>
-                        <input
-                          type="checkbox"
-                          checked={selected.childIds.includes(child.id)}
-                          onChange={(event) =>
-                            updatePlan({
-                              childIds: event.target.checked
-                                ? [...selected.childIds, child.id]
-                                : selected.childIds.filter((id) => id !== child.id),
-                            })
-                          }
-                          style={{ width: 20, height: 20, marginRight: 7 }}
-                        />
+                        <input type="checkbox" checked={selected.childIds.includes(child.id)} onChange={(event) => updatePlan({ childIds: event.target.checked ? [...selected.childIds, child.id] : selected.childIds.filter((id) => id !== child.id) })} style={{ width: 20, height: 20, marginRight: 7 }} />
                         {child.name}
                       </label>
                     ))}
@@ -314,13 +251,7 @@ export default function SchedulesPage() {
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 8, marginTop: 24 }}>
                     {SCHEDULE_DAYS.map((day) => (
-                      <button
-                        key={day}
-                        onClick={() => setSelectedDay(day)}
-                        style={{ ...button(day === selectedDay ? blue : '#f0f9ff', day === selectedDay ? '#fff' : '#0369a1'), padding: '13px 4px', fontSize: 17 }}
-                      >
-                        {day.slice(0, 3)}
-                      </button>
+                      <button key={day} onClick={() => setSelectedDay(day)} style={{ ...button(day === selectedDay ? blue : '#f0f9ff', day === selectedDay ? '#fff' : '#0369a1'), padding: '13px 4px', fontSize: 17 }}>{day.slice(0, 3)}</button>
                     ))}
                   </div>
 
@@ -328,44 +259,39 @@ export default function SchedulesPage() {
                     <h2 style={{ margin: 0, fontSize: 34 }}>{selectedDay}</h2>
                     <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                       <select value={copyTarget} onChange={(event) => setCopyTarget(event.target.value as ScheduleDay)} style={{ ...input, width: 'auto', minWidth: 170 }}>
-                        {SCHEDULE_DAYS.filter((day) => day !== selectedDay).map((day) => (
-                          <option key={day} value={day}>
-                            Copy to {day}
-                          </option>
-                        ))}
+                        {SCHEDULE_DAYS.filter((day) => day !== selectedDay).map((day) => <option key={day} value={day}>Copy to {day}</option>)}
                       </select>
-                      <button onClick={copyDay} style={button('#e0f2fe', '#0369a1')}>
-                        Copy day
-                      </button>
-                      <button onClick={addItem} style={button(blue)}>
-                        + Activity
-                      </button>
+                      <button onClick={copyDay} style={button('#e0f2fe', '#0369a1')}>Copy day</button>
+                      <button onClick={addItem} style={button(blue)}>+ Activity</button>
                     </div>
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 16 }}>
-                    {(selected.days[selectedDay] ?? []).map((entry) => (
-                      <div key={entry.id} style={{ display: 'grid', gridTemplateColumns: '130px 82px 1fr auto', gap: 12, alignItems: 'center', padding: 16, borderRadius: 22, background: '#f8fafc' }}>
-                        <input type="time" value={entry.time} onChange={(event) => updateItems((selected.days[selectedDay] ?? []).map((item) => (item.id === entry.id ? { ...item, time: event.target.value } : item)))} style={input} />
-                        <input value={entry.icon} onChange={(event) => updateItems((selected.days[selectedDay] ?? []).map((item) => (item.id === entry.id ? { ...item, icon: event.target.value } : item)))} style={{ ...input, textAlign: 'center', fontSize: 30, padding: '13px 8px' }} />
-                        <div>
-                          <input value={entry.title} onChange={(event) => updateItems((selected.days[selectedDay] ?? []).map((item) => (item.id === entry.id ? { ...item, title: event.target.value } : item)))} style={{ ...input, fontSize: 24, fontWeight: 800 }} />
-                          <input value={entry.note ?? ''} onChange={(event) => updateItems((selected.days[selectedDay] ?? []).map((item) => (item.id === entry.id ? { ...item, note: event.target.value } : item)))} placeholder="Optional note" style={{ ...input, marginTop: 8, fontSize: 18 }} />
+                    {(selected.days[selectedDay] ?? []).map((entry) => {
+                      const taskTarget = taskCopyTargets[entry.id] ?? SCHEDULE_DAYS.find((day) => day !== selectedDay) ?? 'Monday';
+                      return (
+                        <div key={entry.id} style={{ display: 'grid', gridTemplateColumns: '130px 82px 1fr auto', gap: 12, alignItems: 'center', padding: 16, borderRadius: 22, background: '#f8fafc' }}>
+                          <input type="time" value={entry.time} onChange={(event) => updateItems((selected.days[selectedDay] ?? []).map((item) => item.id === entry.id ? { ...item, time: event.target.value } : item))} style={input} />
+                          <input value={entry.icon} onChange={(event) => updateItems((selected.days[selectedDay] ?? []).map((item) => item.id === entry.id ? { ...item, icon: event.target.value } : item))} style={{ ...input, textAlign: 'center', fontSize: 30, padding: '13px 8px' }} />
+                          <div>
+                            <input value={entry.title} onChange={(event) => updateItems((selected.days[selectedDay] ?? []).map((item) => item.id === entry.id ? { ...item, title: event.target.value } : item))} style={{ ...input, fontSize: 24, fontWeight: 800 }} />
+                            <input value={entry.note ?? ''} onChange={(event) => updateItems((selected.days[selectedDay] ?? []).map((item) => item.id === entry.id ? { ...item, note: event.target.value } : item))} placeholder="Optional note" style={{ ...input, marginTop: 8, fontSize: 18 }} />
+                            <div style={{ display: 'flex', gap: 8, marginTop: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                              <select value={taskTarget} onChange={(event) => setTaskCopyTargets((previous) => ({ ...previous, [entry.id]: event.target.value as ScheduleDay }))} style={{ ...input, width: 'auto', minWidth: 175, padding: '10px 12px', fontSize: 17 }}>
+                                {SCHEDULE_DAYS.filter((day) => day !== selectedDay).map((day) => <option key={day} value={day}>Copy task to {day}</option>)}
+                              </select>
+                              <button onClick={() => copyTask(entry)} style={{ ...button('#e0f2fe', '#0369a1'), padding: '10px 14px', fontSize: 17 }}>Copy task</button>
+                            </div>
+                          </div>
+                          <button aria-label={`Delete ${entry.title}`} onClick={() => updateItems((selected.days[selectedDay] ?? []).filter((item) => item.id !== entry.id))} style={button('#fee2e2', '#b91c1c')}>×</button>
                         </div>
-                        <button onClick={() => updateItems((selected.days[selectedDay] ?? []).filter((item) => item.id !== entry.id))} style={button('#fee2e2', '#b91c1c')}>
-                          ×
-                        </button>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 14, marginTop: 24 }}>
-                    <span style={{ fontSize: 18, color: status === 'saved' ? '#15803d' : mute }}>
-                      {status === 'saving' ? 'Saving…' : status === 'saved' ? 'Saved to cloud' : ''}
-                    </span>
-                    <button onClick={() => void save()} style={button(blue)}>
-                      Save schedules
-                    </button>
+                    <span style={{ fontSize: 18, color: status === 'saved' ? '#15803d' : mute }}>{status === 'saving' ? 'Saving…' : status === 'saved' ? 'Saved to cloud' : ''}</span>
+                    <button onClick={() => void save()} style={button(blue)}>Save schedules</button>
                   </div>
                 </div>
               )}
