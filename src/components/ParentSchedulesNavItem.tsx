@@ -11,7 +11,16 @@ const findKidEditorTabs = (): HTMLElement | null => {
     return null;
   }
 
-  return routinesButton.parentElement;
+  const tabBar = routinesButton.parentElement;
+  const orderedLabels = ['Profile', 'Routines', 'Affirmations', 'Awards', 'Mood'];
+  orderedLabels.forEach((label, index) => {
+    const button = Array.from(tabBar.querySelectorAll('button')).find((candidate) =>
+      candidate.textContent?.trim().includes(label)
+    );
+    if (button) button.style.order = String(index < 2 ? index : index + 1);
+  });
+
+  return tabBar;
 };
 
 export const ParentSchedulesNavItem = () => {
@@ -71,6 +80,7 @@ export const ParentSchedulesNavItem = () => {
       type="button"
       onClick={() => navigate('/parent/schedules', { state: { fromParentSettings: true } })}
       style={{
+        order: 2,
         padding: '8px 14px',
         borderRadius: 10,
         border: 'none',
