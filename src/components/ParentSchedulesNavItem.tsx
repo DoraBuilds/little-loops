@@ -28,6 +28,38 @@ export const ParentSchedulesNavItem = () => {
     return () => observer.disconnect();
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (location.pathname !== '/parent/schedules' || !location.state?.fromParentSettings) return;
+
+    let cleanup: (() => void) | undefined;
+    const attach = () => {
+      const backButton = Array.from(document.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === '← Back'
+      );
+      if (!backButton) return;
+
+      const handleBack = (event: Event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        navigate(-1);
+      };
+      backButton.addEventListener('click', handleBack, true);
+      cleanup = () => backButton.removeEventListener('click', handleBack, true);
+    };
+
+    attach();
+    const observer = new MutationObserver(() => {
+      cleanup?.();
+      cleanup = undefined;
+      attach();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      observer.disconnect();
+      cleanup?.();
+    };
+  }, [location.pathname, location.state, navigate]);
+
   if (!target) return null;
 
   return createPortal(
