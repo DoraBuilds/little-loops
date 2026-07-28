@@ -77,7 +77,7 @@ export const finalizeSupabaseAuthFromUrl = async (url = window.location.href) =>
         return {
           handled: true,
           error: isVerifierMissing
-            ? 'This sign-in link must be opened in the same browser you used to request it. Please request a new sign-in link.'
+            ? 'This sign-in link was created by an older version of Little Loops. Please request a new sign-in link.'
             : error.message,
         };
       }
@@ -135,11 +135,12 @@ export const getSupabaseClient = () => {
         persistSession: true,
         autoRefreshToken: true,
         storage: createSupabaseAuthStorage(),
-        // PKCE puts the auth code in query params (?code=xxx) instead of the URL
-        // hash (#access_token=xxx). Email clients and mobile WebViews routinely
-        // strip hash fragments before following links, which left new users on
-        // a spinner that never resolved. Query params survive every email client.
-        flowType: 'pkce',
+        // Email links are often opened in a different browser context from the one
+        // that requested them (for example Gmail/Outlook in-app browsers). PKCE
+        // requires the original browser's local verifier, so those links fail even
+        // though they are valid. The implicit flow carries the session in the final
+        // redirect URL instead, which our callback consumes with setSession below.
+        flowType: 'implicit',
       },
     });
   }
