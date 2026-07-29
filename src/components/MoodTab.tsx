@@ -21,7 +21,7 @@ export const MoodTab = ({ kid, onSetMood, onSaveNote }: MoodTabProps) => {
   // Today's index (Mon=0 … Sun=6)
   const today = new Date().getDay();
   const todayIdx = today === 0 ? 6 : today - 1;
-  const moods = kid.moods ?? WEEK_DAYS.map((day) => ({ day, emoji: null }));
+  const moods = kid.moods ?? WEEK_DAYS.map((day) => ({ day, emoji: null, note: null }));
   const todayMood = moods[todayIdx]?.emoji ?? null;
   const todayNote = moods[todayIdx]?.note ?? null;
 

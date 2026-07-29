@@ -63,7 +63,7 @@ export class SupabaseHouseholdRepository implements HouseholdRepository {
     }
 
     const householdIds = (Array.isArray(memberRows) ? memberRows : memberRows ? [memberRows] : [])
-      .map((row) => (row && typeof row === 'object' && 'household_id' in row ? String((row as any).household_id) : null))
+      .map((row) => (row && typeof row === 'object' && 'household_id' in row ? String((row as Record<string, unknown>).household_id) : null))
       .filter(Boolean) as string[];
 
     if (!householdIds.length) {

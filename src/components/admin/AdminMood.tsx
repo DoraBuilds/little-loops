@@ -11,7 +11,7 @@ interface AdminMoodProps {
 }
 
 export const AdminMood = ({ kid, onBack }: AdminMoodProps) => {
-  const moods = kid.moods ?? WEEK_DAYS.map((day) => ({ day, emoji: null }));
+  const moods = kid.moods ?? WEEK_DAYS.map((day) => ({ day, emoji: null, note: null }));
 
   return (
     <div

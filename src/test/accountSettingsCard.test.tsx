@@ -8,7 +8,7 @@ import { AccountSettingsCard } from '@/components/AccountSettingsCard';
 vi.mock('@/components/ui/alert-dialog', () => {
   const passthrough =
     (Tag: keyof JSX.IntrinsicElements = 'div') =>
-    ({ children, asChild: _asChild, ...props }: any) =>
+    ({ children, asChild: _asChild, ...props }: { children?: React.ReactNode; asChild?: boolean } & Record<string, unknown>) =>
       React.createElement(Tag, props, children);
 
   const AlertDialog = passthrough('div');

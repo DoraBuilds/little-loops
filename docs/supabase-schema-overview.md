@@ -2,7 +2,7 @@
 
 This project now includes the first household-sync migration in:
 
-- [20260410194500_create_household_schema.sql](/Users/doraangelov/CodexProjects/daily-star-chart/supabase/migrations/20260410194500_create_household_schema.sql)
+- [20260410194500_create_household_schema.sql](../supabase/migrations/20260410194500_create_household_schema.sql)
 
 ## Tables
 
@@ -27,9 +27,9 @@ High-level behavior:
 
 The frontend repository contracts live in:
 
-- [repositories.ts](/Users/doraangelov/CodexProjects/daily-star-chart/src/lib/data/repositories.ts)
-- [models.ts](/Users/doraangelov/CodexProjects/daily-star-chart/src/lib/data/models.ts)
-- [supabase-household-repository.ts](/Users/doraangelov/CodexProjects/daily-star-chart/src/lib/data/supabase-household-repository.ts)
+- [repositories.ts](../src/lib/data/repositories.ts)
+- [models.ts](../src/lib/data/models.ts)
+- [supabase-household-repository.ts](../src/lib/data/supabase-household-repository.ts)
 
 This is intentionally the first slice only.
 

@@ -806,7 +806,7 @@ export const ParentSettings = ({
                               key={routine}
                               onClick={() => setEditorRoutine(routine)}
                               style={{
-                                padding: '9px 20px', borderRadius: 14, border: 'none',
+                                padding: '9px 20px', borderRadius: 14,
                                 background: editorRoutine === routine
                                   ? (routine === 'morning' ? 'linear-gradient(135deg,#fed7aa,#fdba74)' : 'linear-gradient(135deg,#a78bfa,#7c3aed)')
                                   : T.white,

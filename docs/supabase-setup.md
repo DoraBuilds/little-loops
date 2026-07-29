@@ -9,7 +9,7 @@ VITE_SUPABASE_URL=your-project-url
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-You can start from [.env.example](/Users/doraangelov/CodexProjects/daily-star-chart/.env.example).
+You can start from [.env.example](../.env.example).
 
 ## What Works After Configuring Keys
 

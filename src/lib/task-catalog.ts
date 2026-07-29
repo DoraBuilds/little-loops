@@ -119,10 +119,10 @@ export const TASK_LIBRARY = [
 const hasRoutine = (task: TaskCatalogItem, routine: RoutineType) =>
   task.routines.some((value) => value === routine);
 
-export const TASK_CATALOG = {
+export const TASK_CATALOG: Record<RoutineType, readonly TaskCatalogItem[]> = {
   morning: TASK_LIBRARY.filter((task) => hasRoutine(task, 'morning')),
   evening: TASK_LIBRARY.filter((task) => hasRoutine(task, 'evening')),
-} as const satisfies Record<RoutineType, readonly TaskCatalogItem[]>;
+};
 
 export const TASK_CATALOG_BY_ID = Object.fromEntries(
   TASK_LIBRARY.map((task) => [task.id, task])

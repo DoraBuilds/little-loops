@@ -548,7 +548,7 @@ const Index = () => {
         }
       }
     },
-    [authStatus, household, householdStatus, isReady, view]
+    [authStatus, household, householdStatus, isReady]
   );
 
   useEffect(() => {
@@ -763,7 +763,7 @@ const Index = () => {
       : null;
 
     const supabase = enableBackgroundSync ? getSupabaseClient() : null;
-    const canUseRealtime = Boolean(supabase && typeof (supabase as any).channel === 'function');
+    const canUseRealtime = Boolean(supabase && typeof supabase.channel === 'function');
     const channel =
       canUseRealtime && authStatus === 'signed_in' && householdStatus === 'ready' && household
         ? supabase
@@ -796,7 +796,7 @@ const Index = () => {
       if (pollId) {
         window.clearInterval(pollId);
       }
-      if (channel && supabase && typeof (supabase as any).removeChannel === 'function') {
+      if (channel && supabase && typeof supabase.removeChannel === 'function') {
         supabase.removeChannel(channel);
       }
     };

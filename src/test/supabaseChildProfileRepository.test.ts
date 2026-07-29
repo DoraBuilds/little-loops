@@ -101,6 +101,7 @@ describe('SupabaseChildProfileRepository', () => {
         affirmations: [],
         badges: {},
         moods: [],
+        taskCompletion: {},
       })
     ).resolves.toMatchObject({
       id: 'child-1',
@@ -122,6 +123,7 @@ describe('SupabaseChildProfileRepository', () => {
         affirmations: [],
         badges: {},
         moods: [],
+        task_completion: {},
       },
       { onConflict: 'id' }
     );

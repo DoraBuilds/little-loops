@@ -20,7 +20,7 @@ Then add only the files you changed — do NOT reset to origin.
 
 ## Stack
 - React + Vite + TypeScript + Tailwind + shadcn/ui
-- Local storage only (no cloud sync in current version)
+- Supabase (Postgres + Auth) for signed-in household cloud sync; local storage remains the fallback/offline store and is still used for signed-out/local-only sessions
 - Deployed to GitHub Pages via `.github/workflows/deploy-pages.yml`
 - Dev server: `npm run dev` on port 5173
 

@@ -212,7 +212,7 @@ vi.mock("@/components/InitialSetup", () => ({
             {
               id: "draft-1",
               name: "Elie",
-              morning: [{ id: "m1", title: "Brush teeth", icon: "tooth", completed: false }],
+              morning: [{ id: "m1", title: "Brush teeth", icon: "brush", completed: false }],
               evening: [{ id: "e1", title: "Put on pajamas", icon: "shirt", completed: false }],
             },
           ])

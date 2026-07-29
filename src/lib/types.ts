@@ -2,6 +2,8 @@ import type { AgeBucket, IconKey } from './task-catalog';
 import { AGE_BUCKETS, DEFAULT_CHILDREN, groupTasksByAge, ICON_OPTIONS, TASK_CATALOG, TASK_CATALOG_BY_ID, TASK_LIBRARY } from './task-catalog';
 import type { MoodEntry } from './mascots';
 
+export type { AgeBucket, IconKey };
+
 export type Task = {
   id: string;
   title: string;

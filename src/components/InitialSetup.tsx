@@ -808,7 +808,6 @@ export const InitialSetup = ({
                                 flex: 1,
                                 padding: '10px 0',
                                 borderRadius: 14,
-                                border: 'none',
                                 background:
                                   activeRoutine === routine
                                     ? routine === 'morning'

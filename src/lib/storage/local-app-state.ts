@@ -1,5 +1,5 @@
 import type { Child, HomeScene } from '@/lib/types';
-import { getSafeStorage } from './safe-storage';
+import { getSafeStorage, type StorageLike } from './safe-storage';
 
 export const LOCAL_APP_STATE_STORAGE_KEY = 'little_loops_data';
 const LEGACY_STORAGE_KEY = 'routine_stars_data';
@@ -79,7 +79,7 @@ const migrateFromLegacyKey = () => {
   }
 };
 
-const loadBestState = (storage: { getItem: (k: string) => string | null; setItem: (k: string, v: string) => void; length: number; key: (i: number) => string | null }): LocalAppState | null => {
+const loadBestState = (storage: StorageLike): LocalAppState | null => {
   const candidates: LocalAppState[] = [];
   const tryParse = (raw: string | null) => {
     if (!raw) return;

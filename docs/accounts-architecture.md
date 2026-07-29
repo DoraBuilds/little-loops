@@ -163,7 +163,7 @@ Recommendation:
 
 ## Frontend Architecture Changes
 
-The current app stores one anonymous `localStorage` blob in [Index.tsx](/Users/doraangelov/CodexProjects/daily-star-chart/src/pages/Index.tsx).
+The current app stores one anonymous `localStorage` blob in [Index.tsx](../src/pages/Index.tsx).
 
 Before cloud sync, we should split frontend responsibilities into:
 
