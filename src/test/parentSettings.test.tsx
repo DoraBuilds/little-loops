@@ -53,7 +53,15 @@ const initialChildren: Child[] = [
 
 const readState = () => JSON.parse(screen.getByTestId("state").textContent ?? "{}") as Child[];
 
-const Harness = ({ seedChildren = initialChildren }: { seedChildren?: Child[] }) => {
+const Harness = ({
+  seedChildren = initialChildren,
+  cloudConfigSyncStatus,
+  cloudConfigSyncError,
+}: {
+  seedChildren?: Child[];
+  cloudConfigSyncStatus?: "idle" | "saving" | "saved" | "error";
+  cloudConfigSyncError?: string | null;
+}) => {
   const [children, setChildren] = useState(seedChildren);
   const [homeScene, setHomeScene] = useState<HomeScene>("bike");
   const [restartCount, setRestartCount] = useState(0);
@@ -67,6 +75,8 @@ const Harness = ({ seedChildren = initialChildren }: { seedChildren?: Child[] })
       <ParentSettings
         children={children}
         homeScene={homeScene}
+        cloudConfigSyncStatus={cloudConfigSyncStatus}
+        cloudConfigSyncError={cloudConfigSyncError}
         onChange={setChildren}
         onHomeSceneChange={setHomeScene}
         onRestartSetup={() => setRestartCount((count) => count + 1)}
@@ -255,5 +265,42 @@ describe("ParentSettings", () => {
     expect(signOut).toHaveBeenCalledTimes(1);
     expect(screen.getByText(/parent account connected/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /parents/i })).toHaveTextContent("Account connected");
+  });
+
+  it("shows a saving indicator while cloud sync is in flight", () => {
+    authState.status = "signed_in";
+
+    render(<Harness cloudConfigSyncStatus="saving" />);
+
+    expect(screen.getByText(/saving…/i)).toBeInTheDocument();
+  });
+
+  it("shows a saved confirmation once cloud sync completes", () => {
+    authState.status = "signed_in";
+
+    render(<Harness cloudConfigSyncStatus="saved" />);
+
+    expect(screen.getByText(/saved to cloud/i)).toBeInTheDocument();
+  });
+
+  it("does not show the saving/saved pill when idle or signed out", () => {
+    render(<Harness cloudConfigSyncStatus="idle" />);
+    expect(screen.queryByText(/saving…/i)).toBeNull();
+    expect(screen.queryByText(/saved to cloud/i)).toBeNull();
+
+    authState.status = "signed_out";
+    render(<Harness cloudConfigSyncStatus="saved" />);
+    expect(screen.queryByText(/saved to cloud/i)).toBeNull();
+  });
+
+  it("defers to the detailed error banner instead of the pill when sync fails", () => {
+    authState.status = "signed_in";
+
+    render(<Harness cloudConfigSyncStatus="error" cloudConfigSyncError="Could not reach the server." />);
+
+    expect(screen.getByText(/sync issue/i)).toBeInTheDocument();
+    expect(screen.getByText(/could not reach the server\./i)).toBeInTheDocument();
+    expect(screen.queryByText(/saving…/i)).toBeNull();
+    expect(screen.queryByText(/saved to cloud/i)).toBeNull();
   });
 });

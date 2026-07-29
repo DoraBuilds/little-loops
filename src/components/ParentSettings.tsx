@@ -526,6 +526,17 @@ export const ParentSettings = ({
                   ? 'This browser is signed in. Manage sync from the Parents section.'
                   : 'Sign in from the Parents section to load and manage the household saved to this account.'}
               </div>
+              {/* Sync status — errors get the more detailed banner below; this
+                  covers the common saving/saved case so cloud sync isn't
+                  silent, matching the indicator already shown during setup. */}
+              {isSignedIn && !cloudConfigSyncError && cloudConfigSyncStatus !== 'idle' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: T.cream, borderRadius: 10, padding: '6px 10px', marginBottom: 10 }}>
+                  <span style={{ fontSize: 14 }}>{cloudConfigSyncStatus === 'saved' ? '✅' : '🔄'}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: cloudConfigSyncStatus === 'saved' ? '#16a34a' : '#2563eb' }}>
+                    {cloudConfigSyncStatus === 'saved' ? 'Saved to cloud' : 'Saving…'}
+                  </span>
+                </div>
+              )}
               {isSignedIn && (
                 <button
                   onClick={() => void signOut()}
