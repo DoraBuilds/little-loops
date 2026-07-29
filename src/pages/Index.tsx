@@ -10,6 +10,7 @@ import { AdminApp } from '@/components/admin/AdminApp';
 import { useAuth } from '@/lib/auth/use-auth';
 import { loadCloudHouseholdState } from '@/lib/data/cloud-household-state';
 import { saveHouseholdConfigToCloud } from '@/lib/data/cloud-household-write';
+import { mergeTodaysCompletions } from '@/lib/data/merge-same-day-progress';
 import { deleteCloudHousehold } from '@/lib/data/delete-cloud-household';
 import { importLocalFamilyToCloud } from '@/lib/data/local-to-cloud-import';
 import { SupabaseProgressRepository } from '@/lib/data/supabase-progress-repository';
@@ -282,8 +283,16 @@ const Index = () => {
 
       if (recoverableLocalState) {
         if (authStatus === 'signed_in' && householdStatus === 'ready' && household && cloudState?.children.length) {
+          // recoverableLocalState may be from today (a same-device task toggle
+          // whose cloud write is still in flight or failed silently) or from a
+          // previous day (stale, cloud should fully win). Only merge same-day
+          // completions in so a local checkmark doesn't silently revert.
+          const isLocalFromToday = recoverableLocalState.lastReset === new Date().toDateString();
+          const nextChildren = isLocalFromToday
+            ? mergeTodaysCompletions(cloudState.children, recoverableLocalState.children)
+            : cloudState.children;
           if (isMounted) {
-            setChildren(cloudState.children);
+            setChildren(nextChildren);
             setHomeScene(cloudState.homeScene);
             setSetupComplete(cloudState.children.length > 0);
             setView(cloudState.children.length > 0 ? 'home' : 'setup');

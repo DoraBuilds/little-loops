@@ -464,6 +464,48 @@ describe("Index", () => {
     expect(screen.getByTestId("first-task-completed")).toHaveTextContent("true");
   });
 
+  it("does not silently discard a same-day local completion when cloud hasn't caught up yet", async () => {
+    // Simulates toggleTask's fire-and-forget cloud write failing/dropping:
+    // local storage (today) says the task is done, cloud still says it isn't.
+    authState.status = "signed_in";
+    authState.user = { id: "user-1", email: "parent@example.com" };
+    authState.householdStatus = "ready";
+    authState.household = {
+      id: "house-1",
+      name: "Little Loops Family",
+      timezone: "Europe/Madrid",
+      homeScene: "kite",
+      createdByUserId: "user-1",
+      createdAt: "2026-04-20T10:00:00Z",
+      updatedAt: "2026-04-20T10:00:00Z",
+    };
+    loadCloudHouseholdState.mockResolvedValue({
+      homeScene: "kite",
+      children: [
+        {
+          id: "1",
+          name: "Lily",
+          morning: [
+            { id: "m1", title: "Make bed", icon: "bed", completed: false },
+            { id: "m2", title: "Brush teeth", icon: "brush", completed: false },
+          ],
+          evening: [],
+        },
+      ],
+    });
+    localStorage.setItem(
+      "little_loops_data::user:user-1",
+      JSON.stringify(createStoredState(true, today()))
+    );
+
+    render(<Index />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "select-first-child" }));
+
+    expect(await screen.findByTestId("active-child")).toHaveTextContent("Lily");
+    expect(screen.getByTestId("first-task-completed")).toHaveTextContent("true");
+  });
+
   it("persists task toggles back to localStorage for the current day", async () => {
     authState.status = "signed_in";
     authState.user = { id: "user-1", email: "parent@example.com" };
