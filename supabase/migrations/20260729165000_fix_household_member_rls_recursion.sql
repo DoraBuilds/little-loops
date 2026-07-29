@@ -26,9 +26,13 @@
 -- reads a session GUC, not the executing role — so this doesn't change
 -- who the check is actually evaluated for.
 --
--- NOT APPLIED TO PRODUCTION. Verified locally with `supabase start` +
--- supabase/tests/rls_owner_privilege_separation.sql; see that file for
--- how to reproduce and confirm.
+-- APPLIED TO PRODUCTION 2026-07-29. Turned out production already had
+-- an identical fix applied directly via the SQL editor (byte-for-byte
+-- same function body), so this migration was a no-op there — but it
+-- makes the fix explicit and tracked in git going forward. Verified
+-- locally with `supabase start` and against production itself with
+-- supabase/tests/rls_owner_privilege_separation.sql (self-rolling-back
+-- transaction); see that file for how to reproduce and confirm.
 
 create or replace function public.is_household_member(target_household_id uuid)
 returns boolean

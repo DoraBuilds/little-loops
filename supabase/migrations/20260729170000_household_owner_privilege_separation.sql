@@ -27,10 +27,10 @@
 -- household_members the same way is_household_member() does, and needs
 -- the same security-definer treatment to avoid the same recursion.
 --
--- NOT APPLIED TO PRODUCTION. This is a draft for review — see
--- supabase/tests/rls_owner_privilege_separation.sql for a manual
--- verification script to run against a local/staging project before
--- deploying. Verified locally end-to-end with `supabase start`.
+-- APPLIED TO PRODUCTION 2026-07-29. Verified locally end-to-end with
+-- `supabase start`, then re-verified directly against production with
+-- supabase/tests/rls_owner_privilege_separation.sql (self-rolling-back
+-- transaction, no data touched) after deploying.
 
 create or replace function public.is_household_owner(target_household_id uuid)
 returns boolean
