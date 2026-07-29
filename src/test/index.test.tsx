@@ -121,35 +121,7 @@ vi.mock("@/components/KidApp", () => ({
   ),
 }));
 
-// AdminApp replaces ParentSettings as the primary admin screen
-vi.mock("@/components/admin/AdminApp", () => ({
-  AdminApp: ({
-    onClose,
-    onRestartSetup,
-    onResetAppData,
-    cloudSyncStatus,
-  }: {
-    onClose: () => void;
-    onRestartSetup?: () => void;
-    onResetAppData?: () => void;
-    cloudSyncStatus?: string;
-  }) => (
-    <div>
-      <button type="button" onClick={onClose}>
-        back-home
-      </button>
-      <button type="button" onClick={onRestartSetup}>
-        restart-setup
-      </button>
-      <button type="button" onClick={onResetAppData}>
-        reset-app-data
-      </button>
-      <div data-testid="admin-cloud-sync-status">{cloudSyncStatus ?? ""}</div>
-    </div>
-  ),
-}));
-
-// ParentSettings is used for the advanced-settings view (reached via AdminApp → open-advanced)
+// ParentSettings is the primary admin/settings screen, reached via the parent hold gesture
 vi.mock("@/components/ParentSettings", () => ({
   ParentSettings: ({
     onBack,

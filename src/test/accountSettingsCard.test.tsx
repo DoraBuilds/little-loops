@@ -1,38 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AccountSettingsCard } from '@/components/AccountSettingsCard';
-
-// Radix AlertDialog uses portals + focus-locking that can be flaky in JSDOM.
-// For this unit test, we only care that the delete action exists and calls the hook.
-vi.mock('@/components/ui/alert-dialog', () => {
-  const passthrough =
-    (Tag: keyof JSX.IntrinsicElements = 'div') =>
-    ({ children, asChild: _asChild, ...props }: { children?: React.ReactNode; asChild?: boolean } & Record<string, unknown>) =>
-      React.createElement(Tag, props, children);
-
-  const AlertDialog = passthrough('div');
-  const AlertDialogTrigger = passthrough('div');
-  const AlertDialogContent = passthrough('div');
-  const AlertDialogHeader = passthrough('div');
-  const AlertDialogTitle = passthrough('div');
-  const AlertDialogDescription = passthrough('div');
-  const AlertDialogFooter = passthrough('div');
-  const AlertDialogCancel = passthrough('button');
-  const AlertDialogAction = passthrough('button');
-
-  return {
-    AlertDialog,
-    AlertDialogTrigger,
-    AlertDialogContent,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogCancel,
-    AlertDialogAction,
-  };
-});
 
 const sendEmailLink = vi.fn();
 const signOut = vi.fn();

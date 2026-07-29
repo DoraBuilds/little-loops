@@ -6,12 +6,11 @@ import { HouseholdLoadErrorScreen } from '@/components/HouseholdLoadErrorScreen'
 import { ImportFamilySetupScreen } from '@/components/ImportFamilySetupScreen';
 import { KidHome } from '@/components/KidHome';
 import { KidApp } from '@/components/KidApp';
-import { AdminApp } from '@/components/admin/AdminApp';
 import { useAuth } from '@/lib/auth/use-auth';
 import { loadCloudHouseholdState } from '@/lib/data/cloud-household-state';
 import { saveHouseholdConfigToCloud } from '@/lib/data/cloud-household-write';
 import { mergeTodaysCompletions } from '@/lib/data/merge-same-day-progress';
-import { getDueRoutine, getDisplayRoutine, getHouseholdTheme } from '@/lib/routine-schedule';
+import { getDisplayRoutine, getHouseholdTheme } from '@/lib/routine-schedule';
 import { deleteCloudHousehold } from '@/lib/data/delete-cloud-household';
 import { importLocalFamilyToCloud } from '@/lib/data/local-to-cloud-import';
 import { SupabaseProgressRepository } from '@/lib/data/supabase-progress-repository';
@@ -25,7 +24,6 @@ import {
 } from '@/lib/storage/local-app-state';
 
 const InitialSetup = lazy(() => import('@/components/InitialSetup').then((module) => ({ default: module.InitialSetup })));
-const RoutineView = lazy(() => import('@/components/RoutineView').then((module) => ({ default: module.RoutineView })));
 const ParentSettings = lazy(() => import('@/components/ParentSettings').then((module) => ({ default: module.ParentSettings })));
 
 const createSetupChildren = (): Child[] => [];
@@ -781,102 +779,7 @@ const Index = () => {
 
   const activeChild = children.find((c) => c.id === activeChildId);
 
-  const toggleTask = useCallback(
-    (taskId: string) => {
-      if (!activeChild) return;
-
-      const resolvedRoutine = getDisplayRoutine(activeChild, new Date());
-      const toggledAt = new Date().toISOString();
-      let nextProgressWrite:
-        | {
-            childId: string;
-            routineType: RoutineType;
-            taskId: string;
-            completed: boolean;
-            completedAt: string | null;
-            routineCompleted: boolean;
-          }
-        | null = null;
-
-      const nextRoutine = activeChild[resolvedRoutine].map((task) => {
-        if (task.id !== taskId) return task;
-
-        const completed = !task.completed;
-        nextProgressWrite = {
-          childId: activeChild.id,
-          routineType: resolvedRoutine,
-          taskId,
-          completed,
-          completedAt: completed ? toggledAt : null,
-          routineCompleted: false,
-        };
-
-        return { ...task, completed };
-      });
-
-      if (!nextProgressWrite) return;
-
-      const routineCompleted = nextRoutine.length > 0 && nextRoutine.every((task) => task.completed);
-      nextProgressWrite = {
-        ...nextProgressWrite,
-        routineCompleted,
-      };
-
-      setChildren((prev) =>
-        prev.map((child) =>
-          child.id === activeChild.id
-            ? {
-                ...child,
-                [resolvedRoutine]: nextRoutine,
-              }
-            : child
-        )
-      );
-
-      if (
-        nextProgressWrite &&
-        authStatus === 'signed_in' &&
-        householdStatus === 'ready' &&
-        household
-      ) {
-        const supabase = getSupabaseClient();
-        if (!supabase) return;
-
-        const progressRepository = new SupabaseProgressRepository(supabase);
-        const progressDate = getLocalProgressDate(new Date());
-
-        void progressRepository
-          .upsertRoutineProgress({
-            childProfileId: nextProgressWrite.childId,
-            routineType: nextProgressWrite.routineType,
-            progressDate,
-            completedAt: null,
-          })
-          .then(async (dailyRoutineProgress) => {
-            await progressRepository.setTaskCompletion({
-              dailyRoutineProgressId: dailyRoutineProgress.id,
-              routineTaskId: nextProgressWrite.taskId,
-              completed: nextProgressWrite.completed,
-              completedAt: nextProgressWrite.completedAt,
-            });
-
-            await progressRepository.upsertRoutineProgress({
-              childProfileId: nextProgressWrite.childId,
-              routineType: nextProgressWrite.routineType,
-              progressDate,
-              completedAt: nextProgressWrite.routineCompleted ? new Date().toISOString() : null,
-            });
-          })
-          .catch((error) => {
-            console.warn('Could not sync routine progress to cloud.', error);
-          });
-      }
-    },
-    [activeChild, authStatus, household, householdStatus]
-  );
-  // ── New redesign handlers ──────────────────────────────────
-
-  /** Toggle a task by kidId + routine + taskId (redesign API) */
+  /** Toggle a task by kidId + routine + taskId */
   const handleToggleTask = useCallback(
     (kidId: string, routine: RoutineType, taskId: string) => {
       const child = children.find((c) => c.id === kidId);
@@ -987,77 +890,6 @@ const Index = () => {
         }
       )
     );
-  }, []);
-
-  const handleToggleBadge = useCallback((kidId: string, badgeId: string) => {
-    setChildren((prev) =>
-      prev.map((k) =>
-        k.id !== kidId
-          ? k
-          : {
-              ...k,
-              badges: {
-                ...(k.badges ?? DEFAULT_BADGES),
-                [badgeId]: !(k.badges ?? DEFAULT_BADGES)[badgeId],
-              },
-            }
-      )
-    );
-  }, []);
-
-  const handleAddAffirmation = useCallback((kidId: string, text: string) => {
-    setChildren((prev) =>
-      prev.map((k) =>
-        k.id !== kidId ? k : { ...k, affirmations: [...(k.affirmations ?? []), text] }
-      )
-    );
-  }, []);
-
-  const handleRemoveAffirmation = useCallback((kidId: string, idx: number) => {
-    setChildren((prev) =>
-      prev.map((k) =>
-        k.id !== kidId
-          ? k
-          : { ...k, affirmations: (k.affirmations ?? []).filter((_, i) => i !== idx) }
-      )
-    );
-  }, []);
-
-  const handleChangeMascot = useCallback((kidId: string, newMascotId: string) => {
-    setChildren((prev) =>
-      prev.map((k) => (k.id !== kidId ? k : { ...k, mascotId: newMascotId }))
-    );
-  }, []);
-
-  const handleAddTask = useCallback(
-    (kidId: string, routine: RoutineType) => {
-      const title = window.prompt('New task title:');
-      if (!title?.trim()) return;
-      const icon = window.prompt('Emoji icon (e.g. ✨):') ?? '✨';
-      const newTask = {
-        id: `${routine}_${Date.now()}`,
-        title: title.trim(),
-        icon: (icon || '✨') as Child['morning'][0]['icon'],
-        completed: false,
-      };
-      setChildren((prev) =>
-        prev.map((k) => (k.id !== kidId ? k : { ...k, [routine]: [...k[routine], newTask] }))
-      );
-    },
-    []
-  );
-
-  const handleRemoveTask = useCallback((kidId: string, routine: RoutineType, taskId: string) => {
-    setChildren((prev) =>
-      prev.map((k) =>
-        k.id !== kidId ? k : { ...k, [routine]: k[routine].filter((t) => t.id !== taskId) }
-      )
-    );
-  }, []);
-
-  const handleAddKid = useCallback(() => {
-    // Route to setup flow to add a new child
-    setView('setup');
   }, []);
 
   // ── Theme detection ────────────────────────────────────────

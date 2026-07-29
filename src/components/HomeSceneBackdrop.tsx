@@ -183,7 +183,7 @@ const Sandcastle = () => (
   </div>
 );
 
-const SceneArt = ({ scene, theme }: { scene: HomeScene; theme: HomeBackdropTheme }) => {
+const SceneArt = ({ scene }: { scene: HomeScene }) => {
   if (scene === 'bike') {
     return (
       <>
@@ -285,7 +285,7 @@ export const HomeSceneBackdrop = ({ scene, theme }: HomeSceneBackdropProps) => {
         transition={{ duration: 0.9, ease: 'easeOut' }}
         className="absolute inset-0"
       >
-        <SceneArt scene={scene} theme={theme} />
+        <SceneArt scene={scene} />
       </motion.div>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.72),transparent_34%)] opacity-70" />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,transparent_70%,rgba(255,255,255,0.12)_100%)]" />
