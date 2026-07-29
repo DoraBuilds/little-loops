@@ -6,6 +6,18 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
+    <!--
+      CSP delivered via meta tag because GitHub Pages (this app's host) does
+      not support custom response headers. This covers script/style/font/
+      image/connect restrictions, but the CSP spec explicitly ignores
+      frame-ancestors, report-uri, and sandbox when delivered via meta —
+      those need a real HTTP header, which requires a CDN in front of GitHub
+      Pages (e.g. Cloudflare). See docs/deployment-hardening.md for the
+      concrete header set to add there, and for HSTS/X-Frame-Options/
+      X-Content-Type-Options, none of which are settable via meta at all.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://yftabzdnrdfiwpuhjwgv.supabase.co; connect-src 'self' https://yftabzdnrdfiwpuhjwgv.supabase.co wss://yftabzdnrdfiwpuhjwgv.supabase.co; base-uri 'self'; form-action 'self'; object-src 'none'" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>Little Loops — Daily Routines for Kids</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
@@ -16,12 +28,12 @@
     <meta property="og:title" content="Little Loops — Daily Routines for Kids" />
     <meta property="og:description" content="A playful routine checklist app for kids" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://dorabuilds.github.io/little-loops/og-image.png" />
+    <meta property="og:image" content="https://www.littleloops.xyz/og-image.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Little Loops — Daily Routines for Kids" />
     <meta name="twitter:description" content="A playful routine checklist app for kids" />
-    <meta name="twitter:image" content="https://dorabuilds.github.io/little-loops/og-image.png" />
+    <meta name="twitter:image" content="https://www.littleloops.xyz/og-image.png" />
   </head>
 
   <body>
