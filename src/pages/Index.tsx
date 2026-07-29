@@ -11,6 +11,7 @@ import { useAuth } from '@/lib/auth/use-auth';
 import { loadCloudHouseholdState } from '@/lib/data/cloud-household-state';
 import { saveHouseholdConfigToCloud } from '@/lib/data/cloud-household-write';
 import { mergeTodaysCompletions } from '@/lib/data/merge-same-day-progress';
+import { getDueRoutine, getDisplayRoutine, getHouseholdTheme } from '@/lib/routine-schedule';
 import { deleteCloudHousehold } from '@/lib/data/delete-cloud-household';
 import { importLocalFamilyToCloud } from '@/lib/data/local-to-cloud-import';
 import { SupabaseProgressRepository } from '@/lib/data/supabase-progress-repository';
@@ -26,67 +27,6 @@ import {
 const InitialSetup = lazy(() => import('@/components/InitialSetup').then((module) => ({ default: module.InitialSetup })));
 const RoutineView = lazy(() => import('@/components/RoutineView').then((module) => ({ default: module.RoutineView })));
 const ParentSettings = lazy(() => import('@/components/ParentSettings').then((module) => ({ default: module.ParentSettings })));
-
-const parseTime = (value: string) => {
-  const [hours, minutes] = value.split(':').map(Number);
-  return hours * 60 + minutes;
-};
-
-const isWithinSchedule = (start: string, end: string, minutes: number) => {
-  const startMinutes = parseTime(start);
-  const endMinutes = parseTime(end);
-
-  if (startMinutes <= endMinutes) {
-    return minutes >= startMinutes && minutes <= endMinutes;
-  }
-
-  return minutes >= startMinutes || minutes <= endMinutes;
-};
-
-export const getDueRoutine = (child: Child, now: Date): RoutineType | null => {
-  const minutes = now.getHours() * 60 + now.getMinutes();
-  const morning = child.schedule?.morning;
-  const evening = child.schedule?.evening;
-
-  if (morning && isWithinSchedule(morning.start, morning.end, minutes)) {
-    return 'morning';
-  }
-
-  if (evening && isWithinSchedule(evening.start, evening.end, minutes)) {
-    return 'evening';
-  }
-
-  return null;
-};
-
-const getDisplayRoutine = (child: Child, now: Date): RoutineType => {
-  const dueRoutine = getDueRoutine(child, now);
-  // If a schedule window is actively due, always honour it — even if that routine
-  // has no tasks yet (that's a parent config issue, not a display bug).
-  if (dueRoutine) return dueRoutine;
-
-  // Time-based fallback: show the most recently started routine.
-  const minutes = now.getHours() * 60 + now.getMinutes();
-  const morningStart = child.schedule?.morning ? parseTime(child.schedule.morning.start) : null;
-  const eveningStart = child.schedule?.evening ? parseTime(child.schedule.evening.start) : null;
-
-  let candidate: RoutineType;
-  if (eveningStart !== null && minutes >= eveningStart) candidate = 'evening';
-  else if (morningStart !== null && minutes >= morningStart) candidate = 'morning';
-  else if (morningStart !== null) candidate = 'morning';
-  else if (eveningStart !== null) candidate = 'evening';
-  else candidate = 'morning';
-
-  // Never show a routine with zero tasks when the other routine has tasks.
-  // This is the most common cause of "0/0 tasks" — both schedules exist by
-  // default, but a child may only have tasks in one of them.
-  const other: RoutineType = candidate === 'morning' ? 'evening' : 'morning';
-  if (child[candidate].length === 0 && child[other].length > 0) {
-    return other;
-  }
-
-  return candidate;
-};
 
 const createSetupChildren = (): Child[] => [];
 const getLocalProgressDate = (date: Date) =>
@@ -1121,17 +1061,9 @@ const Index = () => {
   }, []);
 
   // ── Theme detection ────────────────────────────────────────
-  const dueRoutineByChild = Object.fromEntries(
-    children.map((child) => [child.id, getDueRoutine(child, now)])
-  ) as Record<string, RoutineType | null>;
-  const globalTheme = children.some((child) => dueRoutineByChild[child.id] === 'morning')
-    ? 'morning'
-    : children.some((child) => dueRoutineByChild[child.id] === 'evening')
-      ? 'evening'
-      : 'free';
-
-  // Cozy Pastel: time-of-day backdrop theme (5–17h = morning, else evening)
-  const kidTheme: 'morning' | 'evening' = now.getHours() >= 5 && now.getHours() < 17 ? 'morning' : 'evening';
+  // Kid-picker greeting/backdrop theme, schedule-aware across all children
+  // (not a fixed clock-hour boundary — see getHouseholdTheme's doc comment).
+  const kidTheme = getHouseholdTheme(children, now);
 
   if (!isReady) {
     return null;
