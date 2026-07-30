@@ -132,6 +132,9 @@ export const getSupabaseClient = () => {
   if (!supabaseClient) {
     supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
+        // PKCE is the recommended flow for magic links in SPAs.
+        // We still explicitly finalize the callback in `finalizeSupabaseAuthFromUrl`.
+        flowType: 'pkce',
         persistSession: true,
         autoRefreshToken: true,
         storage: createSupabaseAuthStorage(),

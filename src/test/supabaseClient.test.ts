@@ -3,15 +3,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const exchangeCodeForSession = vi.fn();
 const verifyOtp = vi.fn();
 const setSession = vi.fn();
+const createClient = vi.fn();
 
 vi.mock('@supabase/supabase-js', () => ({
-  createClient: () => ({
-    auth: {
-      exchangeCodeForSession,
-      verifyOtp,
-      setSession,
-    },
-  }),
+  createClient: (...args: unknown[]) => {
+    createClient(...args);
+    return {
+      auth: {
+        exchangeCodeForSession,
+        verifyOtp,
+        setSession,
+      },
+    };
+  },
 }));
 
 describe('supabase client helpers', () => {
@@ -20,8 +24,25 @@ describe('supabase client helpers', () => {
     exchangeCodeForSession.mockReset();
     verifyOtp.mockReset();
     setSession.mockReset();
+    createClient.mockReset();
     vi.stubEnv('VITE_SUPABASE_URL', 'https://example.supabase.co');
     vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'anon-key');
+  });
+
+  it('configures the supabase client for PKCE auth', async () => {
+    const { getSupabaseClient } = await import('@/lib/supabase/client');
+
+    getSupabaseClient();
+
+    expect(createClient).toHaveBeenCalledWith(
+      'https://example.supabase.co',
+      'anon-key',
+      expect.objectContaining({
+        auth: expect.objectContaining({
+          flowType: 'pkce',
+        }),
+      })
+    );
   });
 
   it('targets the dedicated auth callback route', async () => {
